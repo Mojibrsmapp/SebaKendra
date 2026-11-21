@@ -23,7 +23,8 @@ const App = {
     if (!appEl) return;
 
     // Col 1: Photo & Print
-    if (full === '/tools/ai-photo-studio' || full === '/tools/photo-studio') return this.renderPhotoStudio(appEl);
+    if (full === '/tools/ai-photo-studio') return this.renderAiPhotoStudio(appEl);
+    if (full === '/tools/photo-studio') return this.renderPhotoStudio(appEl);
     if (full === '/tools/joint-photo') return this.renderJointPhoto(appEl);
     if (full === '/tools/nid-print-ready') return this.renderNidPrintReady(appEl);
     if (full === '/tools/a4-print-ready') return this.renderA4PrintReady(appEl);
@@ -37,6 +38,7 @@ const App = {
     if (full === '/tools/admission') return this.renderAdmission(appEl);
 
     // Col 3: Design & Documents
+    if (full === '/tools/udyog' || full === '/udyog') return this.renderUdyog(appEl);
     if (full === '/tools/cv-format') return this.renderCvFormat(appEl);
     if (full === '/tools/graphics-format') return this.renderGraphicsFormat(appEl);
     if (full === '/tools/certificate-format') return this.renderCertificateFormat(appEl);
@@ -350,7 +352,542 @@ const App = {
       ${this.footerHtml()}`;
   },
 
-  // ===================== 3. PHOTO STUDIO AI & PHOTO STUDIO =====================
+  // ===================== 2. AI PHOTO STUDIO (Matching image-10, 11, 12, 13) =====================
+  renderAiPhotoStudio(el) {
+    el.innerHTML = `
+      <div class="container py-6">
+        <div class="studio-layout">
+
+          <!-- Left Controls Column -->
+          <div class="studio-card">
+            <div class="studio-section-head">
+              <span>🎨 ব্যাকগ্রাউন্ড কালার</span>
+              <span class="text-xs text-muted" id="aiBgLabel">সাদা</span>
+            </div>
+            <div class="studio-color-row">
+              <div class="studio-color-circle active" style="background:#ffffff;border:1px solid #ccc;color:#0F9D58" onclick="App.setAiBg('#ffffff','সাদা',this)">✓</div>
+              <div class="studio-color-circle" style="background:#E0F2FE" onclick="App.setAiBg('#E0F2FE','হালকা নীল',this)"></div>
+              <div class="studio-color-circle" style="background:#1E40AF" onclick="App.setAiBg('#1E40AF','ডিপ নীল',this)"></div>
+              <div class="studio-color-circle" style="background:#0284C7" onclick="App.setAiBg('#0284C7','আকাশী',this)"></div>
+              <input type="color" id="aiCustomColor" value="#ffffff" onchange="App.setAiBg(this.value,'কাস্টম',this)" title="কাস্টম কালার" style="width:34px;height:34px;cursor:pointer;border-radius:8px;border:none">
+            </div>
+
+            <!-- পোশাকের ধরন -->
+            <div class="studio-section-head">
+              <span>👔 পোশাকের ধরন</span>
+              <span class="badge badge-green">১০</span>
+            </div>
+            <div class="studio-grid-options mb-4" id="dressOptions">
+              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🚫</span><span class="studio-opt-label">বর্তমান পোশাক</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">👔</span><span class="studio-opt-label">সলিড শার্ট</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">👕</span><span class="studio-opt-label">চেক শার্ট</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🧥</span><span class="studio-opt-label">ফরমাল ব্লেজার</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🤵</span><span class="studio-opt-label">টাই ও স্যুট</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🥼</span><span class="studio-opt-label">পাঞ্জাবি</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🧕</span><span class="studio-opt-label">হিজাবের...</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🥻</span><span class="studio-opt-label">শাড়ি</span></div>
+            </div>
+
+            <!-- অন্যান্য নির্দেশনা -->
+            <div class="studio-section-head">
+              <span>✨ অন্যান্য নির্দেশনা (যদি থাকে)</span>
+              <span class="badge badge-green">১৫</span>
+            </div>
+            <div class="studio-grid-options mb-4" id="instructOptions">
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">✨</span><span class="studio-opt-label">সৌন্দর্য বৃদ্ধি</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">😊</span><span class="studio-opt-label">ত্বক মসৃণ</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💡</span><span class="studio-opt-label">স্টুডিও লাইট</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">👤</span><span class="studio-opt-label">মাথা সোজা</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💇</span><span class="studio-opt-label">চুল পরিপাটি</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">👓</span><span class="studio-opt-label">চশমা বাদ</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💧</span><span class="studio-opt-label">তৈলাক্ত ত্বক দূর</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">🧢</span><span class="studio-opt-label">টুপি/ক্যাপ বাদ</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">👔</span><span class="studio-opt-label">বোতাম বন্ধ</span></div>
+            </div>
+
+            <!-- কাস্টম নির্দেশনা -->
+            <div class="form-group mb-4">
+              <label class="form-label text-xs">✍️ কাস্টম নির্দেশনা (০/৫০)</label>
+              <input type="text" id="aiCustomPrompt" class="form-input text-xs" maxlength="50" placeholder="যেমন: মুখে হালকা হাসি দাও, ইত্যাদি">
+            </div>
+
+            <button class="btn btn-primary w-full btn-lg font-bold" onclick="App.generateAiPhoto()">
+              🪄 ছবি তৈরি করুন (2 Ai Coin)
+            </button>
+          </div>
+
+          <!-- Center Canvas Column -->
+          <div class="studio-card flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b">
+              <span class="font-bold text-sm text-forest">● প্রিভিউ ক্যানভাস</span>
+              <div class="flex gap-2">
+                <button class="btn btn-outline btn-xs" onclick="$('#aiPhotoUploadInput').click()">↑ আপলোড</button>
+                <button class="btn btn-outline btn-xs" onclick="App.openCropModal()">⟲ ক্রপ</button>
+                <button class="btn btn-ghost btn-xs" onclick="App.resetAiStudio()">↺</button>
+              </div>
+            </div>
+
+            <input type="file" id="aiPhotoUploadInput" accept="image/*" class="hidden" onchange="App.handleAiPhotoFile(event)">
+
+            <!-- Center Empty Box / Canvas View -->
+            <div id="aiUploadDropZone" class="canvas-center-wrap my-4" onclick="$('#aiPhotoUploadInput').click()">
+              <div id="aiEmptyPlaceholder">
+                <div style="font-size:3rem;margin-bottom:0.75rem">📷</div>
+                <h3 class="font-bold text-base mb-1">ছবি নির্বাচন করুন</h3>
+                <p class="text-xs text-muted mb-4">পাসপোর্ট সাইজ ছবি তৈরি করতে ফটো আপলোড করুন বা ড্র্যাগ ও ড্রপ করুন</p>
+                <button type="button" class="btn btn-primary btn-sm">↑ ছবি আপলোড করুন</button>
+              </div>
+              <canvas id="aiCanvas" class="hidden rounded shadow-sm max-w-full max-h-[460px]"></canvas>
+            </div>
+
+            <!-- Under Canvas Quick Actions -->
+            <div id="aiCanvasSubActions" class="flex justify-center gap-3 hidden pt-3 border-t">
+              <button class="btn btn-outline btn-xs" onclick="App.openCropModal()">⟲ রিসাইজ / ক্রপ</button>
+              <button class="btn btn-outline btn-xs" onclick="$('#aiPhotoUploadInput').click()">↑ পরিবর্তন</button>
+            </div>
+            <div class="text-center text-xs text-muted mt-2">পরিমাপ: ৪০ x ৫০ মিমি (পাসপোর্ট)</div>
+          </div>
+
+          <!-- Right Sidebar Column -->
+          <div class="studio-card flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center p-3 bg-amber-50 border border-amber-200 rounded-xl mb-4">
+                <div>
+                  <div class="font-bold text-xs text-amber-900">🪙 AI কয়েন ব্যালেন্স</div>
+                  <div class="text-xs text-amber-700">প্রতিটি ছবির জন্য ২টি কয়েন কাটা হবে</div>
+                </div>
+                <div class="font-extrabold text-lg text-amber-800" id="aiCoinCount">${Store.state.credits || 100} কয়েন</div>
+              </div>
+
+              <!-- কাজের হিস্টোরি (১/২০) -->
+              <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-xs text-forest">🕒 কাজের হিস্টোরি (<span id="historyCount">১</span>/২০)</span>
+                <button class="btn btn-ghost btn-xs text-red-500" onclick="App.clearAiHistory()">🗑️</button>
+              </div>
+
+              <div class="space-y-2 mb-6 max-h-[300px] overflow-y-auto" id="aiHistoryList">
+                <div class="p-2 border rounded-xl flex items-center justify-between text-xs hover:bg-surface-alt">
+                  <div class="flex items-center gap-2">
+                    <div style="width:36px;height:44px;background:#D1FAE5;border-radius:6px;display:flex;align-items:center;justify-content:center">📷</div>
+                    <span class="font-mono text-xs">Oca174b8-e8a0-41</span>
+                  </div>
+                  <button class="text-red-500 text-xs" onclick="this.parentElement.remove()">🗑️</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sticky Bottom Download & Print -->
+            <div class="space-y-2 pt-4 border-t">
+              <button class="btn btn-primary w-full btn-lg font-bold" onclick="App.downloadAiPhoto()">
+                📥 ডাউনলোড করুন
+              </button>
+              <button class="btn btn-forest w-full btn-lg font-bold" onclick="App.printAiPhoto()">
+                🖨️ প্রিন্ট করুন
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      ${this.footerHtml()}`;
+  },
+
+  setAiBg(color, label, el) {
+    $$('.studio-color-circle').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    $('#aiBgLabel').textContent = label;
+    window._aiBgColor = color;
+    if (window._aiCroppedImg) App.renderAiCanvasFinal();
+  },
+
+  toggleOpt(btn, group) {
+    if (group === 'dress') {
+      $$('#dressOptions .studio-opt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    } else {
+      btn.classList.toggle('active');
+    }
+  },
+
+  async handleAiPhotoFile(e) {
+    if (!e.target.files[0]) return;
+    window._aiRawImg = await Tools.loadImage(e.target.files[0]);
+    App.openCropModal();
+  },
+
+  // Crop Modal (Matching image-11.png)
+  openCropModal() {
+    if (!window._aiRawImg) return toast('প্রথমে একটি ছবি নির্বাচন করুন', true);
+    openModal(`
+      <div class="crop-modal-box">
+        <div class="flex justify-between items-center text-white mb-3">
+          <span class="font-bold text-sm">📐 পাসপোর্ট সাইজে ছবি ক্রপ করুন</span>
+          <button class="text-white text-lg" onclick="closeModal()">✕</button>
+        </div>
+        <div class="p-3 bg-black/40 rounded-xl mb-4 flex justify-center">
+          <div class="crop-frame-area" style="width:320px;height:400px">
+            <img src="${window._aiRawImg.src}" style="width:100%;height:100%;object-fit:cover" id="cropTargetImg">
+          </div>
+        </div>
+        <div class="flex justify-between items-center text-xs text-gray-300 mb-4 px-2">
+          <span>কোণা বা ধার টেনে ফ্রেম বড়-ছোট করুন</span>
+          <span class="text-emerald-400 font-bold">অনুপাত ৪০:৫০ মিমি</span>
+        </div>
+        <div class="flex gap-3">
+          <button class="btn btn-outline flex-1" onclick="closeModal()">বাতিল</button>
+          <button class="btn btn-primary flex-1 font-bold" onclick="App.confirmAiCrop()">ক্রপ নিশ্চিত করুন ➜</button>
+        </div>
+      </div>`);
+  },
+
+  confirmAiCrop() {
+    closeModal();
+    window._aiCroppedImg = window._aiRawImg;
+    App.renderAiCanvasFinal();
+    toast('পাসপোর্ট সাইজ ক্রপ নিশ্চিত করা হয়েছে');
+  },
+
+  renderAiCanvasFinal() {
+    const canvas = $('#aiCanvas');
+    if (!canvas || !window._aiCroppedImg) return;
+    const bg = window._aiBgColor || '#ffffff';
+    const c = Tools.processPhoto(window._aiCroppedImg, { w: 600, h: 750, bg, border: 2, brightness: 105, contrast: 105 });
+
+    canvas.width = c.width; canvas.height = c.height;
+    canvas.getContext('2d').drawImage(c, 0, 0);
+
+    canvas.classList.remove('hidden');
+    $('#aiEmptyPlaceholder')?.classList.add('hidden');
+    $('#aiCanvasSubActions')?.classList.remove('hidden');
+  },
+
+  generateAiPhoto() {
+    if (!window._aiCroppedImg) return toast('প্রথমে ছবি নির্বাচন ও ক্রপ করুন', true);
+    if (!Store.spendCredits(2)) return toast('পর্যাপ্ত AI কয়েন নেই! টপ-আপ করুন', true);
+    $('#aiCoinCount').textContent = `${Store.state.credits} কয়েন`;
+
+    // Apply smart enhancement and redraw
+    const canvas = $('#aiCanvas');
+    const c = Tools.processPhoto(window._aiCroppedImg, { w: 600, h: 750, bg: window._aiBgColor || '#ffffff', border: 0, brightness: 108, contrast: 110 });
+    canvas.width = c.width; canvas.height = c.height;
+    canvas.getContext('2d').drawImage(c, 0, 0);
+
+    // Add to History
+    const hid = 'Oca' + Math.random().toString(36).slice(2, 8) + '-' + Date.now().toString(36).slice(-4);
+    const item = document.createElement('div');
+    item.className = 'p-2 border rounded-xl flex items-center justify-between text-xs hover:bg-surface-alt';
+    item.innerHTML = `
+      <div class="flex items-center gap-2">
+        <img src="${canvas.toDataURL()}" style="width:36px;height:44px;object-fit:cover;border-radius:6px">
+        <span class="font-mono text-xs">${hid}</span>
+      </div>
+      <button class="text-red-500 text-xs" onclick="this.parentElement.remove()">🗑️</button>`;
+    $('#aiHistoryList')?.prepend(item);
+
+    toast('AI পাসপোর্ট ছবি প্রস্তুত! (-২ কয়েন)');
+  },
+
+  downloadAiPhoto() {
+    const c = $('#aiCanvas');
+    if (!c || c.classList.contains('hidden')) return toast('প্রথমে ছবি তৈরি করুন', true);
+    Tools.downloadCanvas(c, 'ai-passport-photo.jpg');
+    toast('ছবি ডাউনলোড সম্পন্ন');
+  },
+
+  printAiPhoto() {
+    const c = $('#aiCanvas');
+    if (!c || c.classList.contains('hidden')) return toast('প্রথমে ছবি তৈরি করুন', true);
+    const sheet = Tools.makeA4Sheet(c, 24);
+    const w = window.open('', '_blank');
+    w.document.write(`<html><body style="margin:0;display:flex;align-items:center;justify-content:center"><img src="${sheet.toDataURL()}" style="max-width:100%" onload="window.print()"/></body></html>`);
+    w.document.close();
+  },
+
+  resetAiStudio() {
+    window._aiRawImg = null;
+    window._aiCroppedImg = null;
+    $('#aiCanvas')?.classList.add('hidden');
+    $('#aiEmptyPlaceholder')?.classList.remove('hidden');
+    $('#aiCanvasSubActions')?.classList.add('hidden');
+  },
+
+  clearAiHistory() {
+    $('#aiHistoryList').innerHTML = '<div class="text-xs text-muted text-center py-4">কোনো আগের কাজ নেই</div>';
+  },
+
+  // ===================== 3. UDYOG (উদ্যোগ) APPLICATION PORTAL (image-9.png) =====================
+  renderUdyog(el) {
+    Udyog.loadProfile();
+    const p = Udyog.data;
+    const progress = Udyog.calcProgress();
+
+    el.innerHTML = `
+      <div class="container py-8">
+        <div class="udyog-app-layout">
+
+          <!-- Left Sidebar (Matching image-9.png) -->
+          <aside class="udyog-sidebar">
+            <div class="card p-3 bg-surface-alt mb-4">
+              <div class="flex justify-between items-center text-xs text-muted mb-1">
+                <span>👥 আবেদনকারী</span>
+                <span class="badge badge-green font-bold">${progress}%</span>
+              </div>
+              <div class="font-bold text-sm text-forest mb-2 truncate">${esc(p.applicantNameBn || 'মুজিবুর রহমান')}</div>
+              <div class="flex gap-2">
+                <button class="btn btn-outline btn-xs flex-1" onclick="App.newUdyogProfile()">+ নতুন</button>
+                <button class="btn btn-outline btn-xs flex-1" onclick="toast('প্রোফাইল তালিকা')">⚙ সব দেখুন</button>
+              </div>
+            </div>
+
+            <!-- Progress Box -->
+            <div class="udyog-progress-box">
+              <div class="flex justify-between text-xs font-bold text-forest">
+                <span>পূরণের অগ্রগতি</span>
+                <span>${progress}% পূরণ</span>
+              </div>
+              <div class="udyog-pbar">
+                <div class="udyog-pbar-fill" style="width:${progress}%"></div>
+              </div>
+              <div class="mt-2 text-right">
+                <a href="#checklist" class="text-xs font-bold text-primary" onclick="App.openUdyogChecklist()">≡ চেকলিস্ট দেখুন ➜</a>
+              </div>
+            </div>
+
+            <!-- 7 Page Navigation Steps (image-9.png) -->
+            <div class="mb-4">
+              <div class="text-xs font-bold text-muted mb-2 uppercase">পৃষ্ঠা</div>
+              <div class="udyog-step-item ${Udyog.currentStep === 1 ? 'active' : ''}" onclick="App.setUdyogStep(1)"><span class="udyog-step-num">১</span><span>ব্যক্তিগত তথ্য</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 2 ? 'active' : ''}" onclick="App.setUdyogStep(2)"><span class="udyog-step-num">২</span><span>প্রশিক্ষণ ও ঠিকানা</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 3 ? 'active' : ''}" onclick="App.setUdyogStep(3)"><span class="udyog-step-num">৩</span><span>ব্যবসায়িক পরিকল্পনা</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 4 ? 'active' : ''}" onclick="App.setUdyogStep(4)"><span class="udyog-step-num">৪</span><span>পরিকল্পনা ও বর্তমান ব্যবসা</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 5 ? 'active' : ''}" onclick="App.setUdyogStep(5)"><span class="udyog-step-num">৫</span><span>বর্তমান ব্যবসা</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 6 ? 'active' : ''}" onclick="App.setUdyogStep(6)"><span class="udyog-step-num">৬</span><span>অর্থায়ন পরিকল্পনা</span></div>
+              <div class="udyog-step-item ${Udyog.currentStep === 7 ? 'active' : ''}" onclick="App.setUdyogStep(7)"><span class="udyog-step-num">৭</span><span>অন্যান্য ও ঘোষণা</span></div>
+            </div>
+
+            <div class="pt-3 border-t space-y-2">
+              <button class="btn btn-outline btn-xs w-full" onclick="App.openUdyogPolicy()">📖 নীতিমালা সংক্ষেপে</button>
+              <button class="btn btn-outline btn-xs w-full" onclick="App.openUdyogCalc()">🧮 টাকার হিসাব (৫০:৫০)</button>
+            </div>
+          </aside>
+
+          <!-- Main A4 Paper View (image-9.png) -->
+          <main>
+            <!-- Top Action Toolbar -->
+            <div class="card p-3 mb-4 flex justify-between items-center bg-forest text-white">
+              <div class="font-bold text-sm">আবেদনকারী: ${esc(p.applicantNameBn || 'মুজিবুর রহমান')}</div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-emerald-200">পৃষ্ঠা ${Udyog.currentStep}/৭</span>
+                <button class="btn btn-sm btn-outline text-white" style="border-color:rgba(255,255,255,0.3)" onclick="App.printUdyogForm()">🖨️ প্রিন্ট</button>
+                <button class="btn btn-sm btn-primary" onclick="App.printUdyogForm()">📥 পিডিএফ</button>
+              </div>
+            </div>
+
+            <!-- Printable Form Paper -->
+            <div class="udyog-page-paper" id="udyogPaperArea">
+
+              <!-- Official Header (image-9.png) -->
+              <div class="text-center mb-6">
+                <div class="udyog-header-logo">
+                  <span style="font-size:2.8rem">🌱</span>
+                  <div>
+                    <h1 class="font-extrabold text-2xl text-forest" style="letter-spacing:1px">উদ্যোগ (UDYOG)</h1>
+                    <div class="font-bold text-sm text-primary">উপজেলাভিত্তিক তরুণ উদ্যোক্তা অনুসন্ধান, চিহ্নিতকরণ ও অর্থায়ন কর্মসূচি</div>
+                    <div class="text-xs text-muted">এসএমই এন্ড স্পেশাল প্রোগ্রামস্ ডিপার্টমেন্ট, বাংলাদেশ ব্যাংক।</div>
+                  </div>
+                </div>
+                <h3 class="font-bold text-base mt-3 border-t pt-2">আবেদন ফরম</h3>
+                <div class="text-xs text-muted">(আবেদন জমাদানের সর্বশেষ তারিখ ৩০ নভেম্বর ২০২৬। মানিকগঞ্জ, ফেনী, ভোলা, নওগাঁ, হবিগঞ্জ, ঝিনাইদহ, নেত্রকোণা ও রংপুর ব্যতীত)</div>
+              </div>
+
+              <!-- Bank Branch Usage Table & Photo Frame (image-9.png) -->
+              <div class="grid grid-3 gap-4 mb-6">
+                <div class="col-span-2">
+                  <table class="udyog-bank-table">
+                    <thead><tr><th colspan="2">ব্যাংক শাখায় ব্যবহারের জন্য</th></tr></thead>
+                    <tbody>
+                      <tr><td width="35%"><strong>ট্র্যাকিং নম্বর:</strong></td><td><input type="text" class="form-input text-xs" value="${esc(p.trackingNo)}" oninput="Udyog.data.trackingNo=this.value;Udyog.saveProfile()" placeholder="শাখা পূরণ করবে"></td></tr>
+                      <tr><td><strong>আবেদন গ্রহণকারী ব্যাংক ও শাখা:</strong></td><td><input type="text" class="form-input text-xs" value="${esc(p.bankName)}" oninput="Udyog.data.bankName=this.value;Udyog.saveProfile()" placeholder="ব্যাংক ও শাখা"></td></tr>
+                      <tr><td><strong>গ্রহণের তারিখ:</strong></td><td><input type="text" class="form-input text-xs" value="${esc(p.receiveDate)}" oninput="Udyog.data.receiveDate=this.value;Udyog.saveProfile()"></td></tr>
+                      <tr><td><strong>জেলা ও উপজেলা:</strong></td><td><input type="text" class="form-input text-xs" value="${esc(p.district)} ${esc(p.upazila)}" placeholder="উপজেলা, জেলা"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- 2-Copies Passport Photo Box -->
+                <div class="border-2 border-dashed border-gray-400 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+                  <div style="font-size:2rem">📷</div>
+                  <div class="font-bold text-xs mt-1">পাসপোর্ট সাইজ ছবি (২ কপি)</div>
+                  <div class="text-xs text-muted">আঠা দিয়ে লাগান বা আপলোড করুন</div>
+                </div>
+              </div>
+
+              <!-- Step Dynamic Form Container -->
+              <div id="udyogStepContent">
+                ${this.renderUdyogStepHtml(Udyog.currentStep)}
+              </div>
+
+            </div>
+          </main>
+
+        </div>
+      </div>
+      ${this.footerHtml()}`;
+  },
+
+  renderUdyogStepHtml(step) {
+    const p = Udyog.data;
+    if (step === 1) {
+      return `
+        <h3 class="font-bold text-base text-forest mb-3 border-b pb-1">১. ব্যক্তিগত তথ্য</h3>
+        <div class="grid grid-2 gap-4 text-xs">
+          <div class="form-group"><label class="form-label">আবেদনকারীর নাম (বাংলায়) *</label><input type="text" class="form-input text-xs" value="${esc(p.applicantNameBn)}" oninput="Udyog.data.applicantNameBn=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">আবেদনকারীর নাম (ইংরেজিতে বড় অক্ষরে) *</label><input type="text" class="form-input text-xs uppercase" value="${esc(p.applicantNameEn)}" oninput="Udyog.data.applicantNameEn=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">পিতার নাম *</label><input type="text" class="form-input text-xs" value="${esc(p.fatherName)}" oninput="Udyog.data.fatherName=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">মাতার নাম *</label><input type="text" class="form-input text-xs" value="${esc(p.motherName)}" oninput="Udyog.data.motherName=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">জন্ম তারিখ (DOB) *</label><input type="date" class="form-input text-xs" value="${p.dob}" onchange="Udyog.data.dob=this.value;Udyog.data.age=Udyog.calcAge(this.value);$('#uAgeShow').textContent=Udyog.data.age;Udyog.saveProfile()"><small class="text-primary font-bold" id="uAgeShow">${p.age || 'বয়স: ৩০/১১/২০২৬ অনুযায়ী হিসাব হবে'}</small></div>
+          <div class="form-group"><label class="form-label">জাতীয় পরিচয়পত্র নম্বর (NID) *</label><input type="text" class="form-input text-xs" value="${esc(p.nid)}" oninput="Udyog.data.nid=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">মোবাইল নম্বর *</label><input type="tel" class="form-input text-xs" value="${esc(p.mobile)}" oninput="Udyog.data.mobile=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">শিক্ষাগত যোগ্যতা</label><input type="text" class="form-input text-xs" value="${esc(p.education)}" oninput="Udyog.data.education=this.value;Udyog.saveProfile()" placeholder="যেমন: এইচএসসি / স্নাতক"></div>
+        </div>
+        <div class="flex justify-end gap-2 mt-4 pt-4 border-t">
+          <button class="btn btn-primary btn-sm" onclick="App.setUdyogStep(2)">পরবর্তী পৃষ্ঠা (২. প্রশিক্ষণ ও ঠিকানা) ➜</button>
+        </div>`;
+    }
+    if (step === 2) {
+      return `
+        <h3 class="font-bold text-base text-forest mb-3 border-b pb-1">২. প্রশিক্ষণ ও ঠিকানা</h3>
+        <div class="space-y-3 text-xs">
+          <div class="form-group"><label class="form-label">বর্তমান ঠিকানা *</label><textarea class="form-textarea text-xs" rows="2" oninput="Udyog.data.presentAddress=this.value;Udyog.saveProfile()">${esc(p.presentAddress)}</textarea></div>
+          <div class="form-group"><label class="form-label">স্থায়ী ঠিকানা *</label><textarea class="form-textarea text-xs" rows="2" oninput="Udyog.data.permanentAddress=this.value;Udyog.saveProfile()">${esc(p.permanentAddress)}</textarea></div>
+          <div class="form-group"><label class="form-label">আপনি কি যে উপজেলায় আবেদন করছেন সেখানকার স্থায়ী বাসিন্দা?</label><select class="form-input text-xs" onchange="Udyog.data.isResident=this.value;Udyog.saveProfile()"><option value="হ্যাঁ">হ্যাঁ (যোগ্য)</option><option value="না">না (অযোগ্য)</option></select></div>
+          <div class="form-group"><label class="form-label">উদ্যোক্তা উন্নয়ন / কোনো বিষয়ে কারিগরি প্রশিক্ষণ আছে?</label><input type="text" class="form-input text-xs" value="${esc(p.trainingCourse)}" oninput="Udyog.data.trainingCourse=this.value;Udyog.saveProfile()" placeholder="কোর্সের নাম ও প্রতিষ্ঠান"></div>
+        </div>
+        <div class="flex justify-between mt-4 pt-4 border-t">
+          <button class="btn btn-outline btn-sm" onclick="App.setUdyogStep(1)">← পূর্ববর্তী</button>
+          <button class="btn btn-primary btn-sm" onclick="App.setUdyogStep(3)">পরবর্তী পৃষ্ঠা (৩. ব্যবসায়িক পরিকল্পনা) ➜</button>
+        </div>`;
+    }
+    if (step === 3) {
+      return `
+        <h3 class="font-bold text-base text-forest mb-3 border-b pb-1">৩. ব্যবসায়িক পরিকল্পনা</h3>
+        <div class="grid grid-2 gap-4 text-xs">
+          <div class="form-group"><label class="form-label">ব্যবসার নাম *</label><input type="text" class="form-input text-xs" value="${esc(p.bizName)}" oninput="Udyog.data.bizName=this.value;Udyog.saveProfile()"></div>
+          <div class="form-group"><label class="form-label">ব্যবসার খাত *</label><select class="form-input text-xs" onchange="Udyog.data.bizSector=this.value;Udyog.saveProfile()"><option>কৃষি ও খাদ্য প্রক্রিয়াজাতকরণ</option><option>মৎস্য ও পশুপালন</option><option>হালকা প্রকৌশল ও আইটি স্টার্টআপ</option><option>সেবা ও হস্তশিল্প</option></select></div>
+          <div class="form-group"><label class="form-label">মোট মূলধন চাহিদা (টাকা) *</label><input type="number" class="form-input text-xs font-bold" value="${p.totalCapitalNeeded}" oninput="Udyog.data.totalCapitalNeeded=this.value;App.updateUdyogFinancePreview();Udyog.saveProfile()" placeholder="যেমন: ১২০০০০০"></div>
+          <div class="form-group"><label class="form-label">নিজস্ব বিনিয়োগ (যদি থাকে)</label><input type="number" class="form-input text-xs" value="${p.ownInvestment}" oninput="Udyog.data.ownInvestment=this.value;App.updateUdyogFinancePreview();Udyog.saveProfile()"></div>
+        </div>
+        <div class="p-3 bg-mint rounded-xl text-xs space-y-1 mb-4" id="uFinPreview">
+          <div>৫০:৫০ নীতিমালার আওতায় সর্বোচ্চ ২০ লাখ টাকা অর্থায়ন (৫০% ঋণ + ৫০% অনুদান)।</div>
+        </div>
+        <div class="flex justify-between mt-4 pt-4 border-t">
+          <button class="btn btn-outline btn-sm" onclick="App.setUdyogStep(2)">← পূর্ববর্তী</button>
+          <button class="btn btn-primary btn-sm" onclick="App.setUdyogStep(4)">পরবর্তী পৃষ্ঠা (৪. পরিকল্পনা ও বর্তমান ব্যবসা) ➜</button>
+        </div>`;
+    }
+    return `
+      <div class="space-y-4 text-xs">
+        <h3 class="font-bold text-base text-forest border-b pb-1">পৃষ্ঠা ${step} — তথ্যাবলি ও ঘোষণা</h3>
+        <p class="text-muted">বাংলাদেশ ব্যাংক উদ্যোগ নীতিমালা সার্কুলার নং-০৫ অনুযায়ী আপনার সব তথ্য সংরক্ষিত হচ্ছে।</p>
+        <div class="p-4 bg-surface-alt rounded border space-y-2">
+          <div>✓ আবেদনকারীর নাম: <strong>${esc(p.applicantNameBn || '—')}</strong></div>
+          <div>✓ জাতীয় পরিচয়পত্র: <strong>${esc(p.nid || '—')}</strong></div>
+          <div>✓ ব্যবসার নাম: <strong>${esc(p.bizName || '—')}</strong></div>
+          <div>✓ মোট অর্থায়ন চাহিদা: <strong>৳ ${p.totalCapitalNeeded || '—'}</strong></div>
+        </div>
+        <div class="flex justify-between mt-6 pt-4 border-t">
+          <button class="btn btn-outline btn-sm" onclick="App.setUdyogStep(${step - 1})">← পূর্ববর্তী</button>
+          <button class="btn btn-primary btn-sm" onclick="App.printUdyogForm()">🖨️ আবেদন ফরম প্রিন্ট / পিডিএফ ডাউনলোড</button>
+        </div>
+      </div>`;
+  },
+
+  setUdyogStep(n) {
+    Udyog.currentStep = n;
+    this.renderUdyog($('#app'));
+  },
+
+  newUdyogProfile() {
+    if (confirm('নতুন আবেদনকারীর জন্য ফর্ম খালি করতে চান?')) {
+      localStorage.removeItem('sebakendra_udyog_data');
+      Udyog.data = {};
+      Udyog.currentStep = 1;
+      this.renderUdyog($('#app'));
+      toast('নতুন খালি ফর্ম তৈরি হয়েছে');
+    }
+  },
+
+  updateUdyogFinancePreview() {
+    const total = $('#udyogPaperArea input[placeholder="যেমন: ১২০০০০০"]')?.value;
+    const fin = Udyog.calcFinancing(total);
+    const box = $('#uFinPreview');
+    if (box) {
+      box.innerHTML = `
+        <div class="font-bold text-forest">অর্থায়ন ব্রেকডাউন (৫০:৫০ সূত্র):</div>
+        <div>মোট অর্থায়ন মঞ্জুরযোগ্য: <strong>৳ ${fin.total.toLocaleString()}</strong></div>
+        <div>১. ব্যাংক ঋণ (৫০%): <strong class="text-primary">৳ ${fin.loan.toLocaleString()}</strong></div>
+        <div>২. সরকারি অনুদান (৫০%): <strong class="text-emerald-700">৳ ${fin.grant.toLocaleString()}</strong> (জামানত লাগবে না)</div>
+      `;
+    }
+  },
+
+  printUdyogForm() {
+    const area = $('#udyogPaperArea');
+    if (!area) return;
+    const w = window.open('', '_blank');
+    w.document.write(`
+      <!DOCTYPE html><html><head><title>UDYOG Application Form</title>
+      <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        body{font-family:'Hind Siliguri',sans-serif;padding:2rem;max-width:850px;margin:auto;line-height:1.5}
+        table{width:100%;border-collapse:collapse;margin:1rem 0}
+        th,td{border:1px solid #444;padding:6px 8px;font-size:13px}
+        th{background:#0F9D58;color:#fff}
+        input{border:none;border-bottom:1px dotted #888;font-family:inherit;width:95%}
+      </style></head><body>
+      ${area.innerHTML}
+      <div style="margin-top:40px;display:flex;justify-content:space-between;font-size:13px">
+        <div>তারিখ: ${new Date().toLocaleDateString('bn-BD')}</div>
+        <div style="border-top:1px solid #000;padding-top:4px">আবেদনকারীর পূর্ণ স্বাক্ষর</div>
+      </div>
+      <script>window.print()<\/script>
+      </body></html>`);
+    w.document.close();
+  },
+
+  openUdyogPolicy() {
+    openModal(`
+      <div class="p-4 text-xs space-y-3">
+        <h2 class="text-base font-bold text-forest border-b pb-1">উদ্যোগ (UDYOG) নীতিমালার সারসংক্ষেপ</h2>
+        <p>• সর্বোচ্চ ২০ লাখ টাকা অর্থায়ন; ৫০% ঋণ ও ৫০% অনুদান (১০ লাখ + ১০ লাখ)।</p>
+        <p>• আবেদনের শেষ তারিখে বয়স সর্বোচ্চ ২৮ বছর।</p>
+        <p>• যে উপজেলায় আবেদন, সেখানকার স্থায়ী বাসিন্দা হতে হবে।</p>
+        <p>• কোনো জামানত লাগবে না।</p>
+        <button class="btn btn-primary btn-sm w-full mt-3" onclick="closeModal()">বুঝেছি</button>
+      </div>`);
+  },
+
+  openUdyogCalc() {
+    openModal(`
+      <div class="p-4 text-xs">
+        <h2 class="text-base font-bold text-forest mb-2">টাকার হিসাব ক্যালকুলেটর (৫০:৫০)</h2>
+        <div class="form-group"><label class="form-label">ব্যবসার মোট মূলধন চাহিদা (টাকা)</label><input type="number" id="ucCalcInp" class="form-input text-xs" value="1200000" oninput="App.runUdyogModalCalc(this.value)"></div>
+        <div class="p-3 bg-mint rounded space-y-1 mb-4" id="ucCalcOut">
+          <div>ব্যাংক ঋণ (৫০%): <strong>৳ ৬,০০,০০০</strong></div>
+          <div>অনুদান (৫০%): <strong>৳ ৬,০০,০০০</strong></div>
+        </div>
+        <button class="btn btn-primary btn-sm w-full" onclick="closeModal()">ঠিক আছে</button>
+      </div>`);
+  },
+
+  runUdyogModalCalc(v) {
+    const fin = Udyog.calcFinancing(v);
+    $('#ucCalcOut').innerHTML = `
+      <div>মোট মঞ্জুরযোগ্য: <strong>৳ ${fin.total.toLocaleString()}</strong></div>
+      <div>ব্যাংক ঋণ (৫০%): <strong class="text-primary">৳ ${fin.loan.toLocaleString()}</strong></div>
+      <div>অনুদান (৫০%): <strong class="text-emerald-700">৳ ${fin.grant.toLocaleString()}</strong></div>
+    `;
+  },
   renderPhotoStudio(el) {
     el.innerHTML = `
       <div class="container py-8 max-w-5xl">
