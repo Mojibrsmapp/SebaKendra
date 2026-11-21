@@ -44,7 +44,7 @@ const MIME = {
 };
 
 function send(res, status, body, type = 'application/json') {
-  const data = typeof body === 'string' ? body : JSON.stringify(body);
+  const data = (Buffer.isBuffer(body) || typeof body === 'string') ? body : JSON.stringify(body);
   res.writeHead(status, {
     'Content-Type': type,
     'Cache-Control': type.includes('html') ? 'no-cache' : 'public, max-age=3600',
