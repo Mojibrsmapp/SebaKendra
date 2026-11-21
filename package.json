@@ -12,6 +12,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@mediapipe/selfie_segmentation": "^0.1.1675465747",
     "mysql2": "^3.24.6"
   }
 }

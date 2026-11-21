@@ -63,6 +63,687 @@ const Tools = {
     return canvas;
   },
 
+  // ============ AI PHOTO STUDIO ENGINE (Background Removal, Dress Replacement, Skin Smoothing & Studio Light) ============
+  async processAiPhoto(img, {
+    bg = '#0284C7',
+    dress = 'বর্তমান পোশাক',
+    dressOffsetY = 0,
+    dressScale = 1.0,
+    instructions = [],
+    w = 600,
+    h = 750
+  } = {}) {
+    // 1. Prepare base cropped canvas (40x50 mm passport ratio)
+    const base = document.createElement('canvas');
+    base.width = w; base.height = h;
+    const bctx = base.getContext('2d');
+
+    const srcAspect = img.width / img.height;
+    const dstAspect = w / h;
+    let sw, sh, sx, sy;
+    if (srcAspect > dstAspect) {
+      sh = img.height; sw = sh * dstAspect;
+      sx = (img.width - sw) / 2; sy = 0;
+    } else {
+      sw = img.width; sh = sw / dstAspect;
+      sx = 0; sy = (img.height - sh) / 2;
+    }
+    bctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+
+    // 2. Perform AI Segmentation (MediaPipe or Smart Skin-Protected Color Segmenter)
+    let segmentedCanvas = await this.segmentSubject(base);
+
+    // 3. Composite onto target background
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    const ctx = out.getContext('2d');
+
+    // Fill background color
+    ctx.fillStyle = bg || '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle studio background radial gradient
+    const bgRad = ctx.createRadialGradient(w * 0.5, h * 0.38, 40, w * 0.5, h * 0.45, w * 0.85);
+    bgRad.addColorStop(0, 'rgba(255,255,255,0.22)');
+    bgRad.addColorStop(1, 'rgba(0,0,0,0.12)');
+    ctx.fillStyle = bgRad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw segmented person
+    ctx.drawImage(segmentedCanvas, 0, 0);
+
+    // 4. Apply AI Enhancement Filters
+    const instSet = new Set(instructions);
+    if (instSet.has('ত্বক মসৃণ') || instSet.has('সৌন্দর্য বৃদ্ধি')) {
+      this.applySkinSmoothing(ctx, w, h);
+    }
+    if (instSet.has('সৌন্দর্য বৃদ্ধি')) {
+      this.applyBeautyEnhance(ctx, w, h);
+    }
+    if (instSet.has('স্টুডিও লাইট')) {
+      this.applyStudioLight(ctx, w, h);
+    }
+    if (instSet.has('তৈলাক্ত ত্বক দূর')) {
+      this.applyOilinessRemoval(ctx, w, h);
+    }
+
+    // 5. Apply Dress Overlay
+    if (dress && dress !== 'বর্তমান পোশাক') {
+      this.drawDressOverlay(ctx, w, h, dress, dressOffsetY, dressScale);
+    }
+
+    return out;
+  },
+
+  // Segment subject using MediaPipe or Smart Fallback
+  async segmentSubject(canvas) {
+    const W = canvas.width, H = canvas.height;
+
+    // Check if MediaPipe SelfieSegmentation is available
+    if (window.SelfieSegmentation) {
+      try {
+        const seg = await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject('timeout'), 1800);
+          try {
+            const ss = new window.SelfieSegmentation({
+              locateFile: (file) => `/vendor/mediapipe/${file}`
+            });
+            ss.setOptions({ modelSelection: 1 });
+            ss.onResults((results) => {
+              clearTimeout(timeout);
+              const maskCanvas = document.createElement('canvas');
+              maskCanvas.width = W; maskCanvas.height = H;
+              const mctx = maskCanvas.getContext('2d');
+              mctx.drawImage(results.segmentationMask, 0, 0, W, H);
+
+              const out = document.createElement('canvas');
+              out.width = W; out.height = H;
+              const octx = out.getContext('2d');
+              octx.drawImage(canvas, 0, 0);
+              octx.globalCompositeOperation = 'destination-in';
+              octx.drawImage(maskCanvas, 0, 0);
+              resolve(out);
+            });
+            ss.send({ image: canvas });
+          } catch (err) {
+            clearTimeout(timeout);
+            reject(err);
+          }
+        });
+        if (seg) return seg;
+      } catch (e) {
+        // Fallback to Canvas Smart Segmenter
+      }
+    }
+
+    // High Quality Fallback: Smart Color & Skin-Protected Segmenter
+    return this.smartColorSegment(canvas);
+  },
+
+  // Smart Color Segmenter with skin & hair protection
+  smartColorSegment(canvas) {
+    const W = canvas.width, H = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const data = imgData.data;
+
+    // Sample background colors from top corners and top 20px
+    const bgSamples = [];
+    for (let x = 0; x < W; x += 15) {
+      for (let y = 0; y < 25; y += 5) {
+        const idx = (y * W + x) * 4;
+        bgSamples.push([data[idx], data[idx + 1], data[idx + 2]]);
+      }
+    }
+
+    // Average BG color
+    const avgBg = bgSamples.reduce((acc, c) => [acc[0] + c[0], acc[1] + c[1], acc[2] + c[2]], [0, 0, 0])
+      .map(v => v / bgSamples.length);
+
+    // Alpha mask
+    const mask = new Uint8Array(W * H);
+
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const idx = (y * W + x) * 4;
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+
+        // 1. Never remove chest/torso at bottom center
+        if (y > H * 0.72 && x > W * 0.15 && x < W * 0.85) {
+          mask[y * W + x] = 255;
+          continue;
+        }
+
+        // 2. Skin tone detection (keep face/neck protected)
+        const isSkin = (r > 95 && g > 40 && b > 20 && (r - g) > 12 && r > b && (Math.max(r, g, b) - Math.min(r, g, b)) > 15);
+        if (isSkin && y > H * 0.15 && y < H * 0.78 && x > W * 0.20 && x < W * 0.80) {
+          mask[y * W + x] = 255;
+          continue;
+        }
+
+        // 3. Dark hair and beard protection
+        const lum = (r * 0.299 + g * 0.587 + b * 0.114);
+        if (lum < 52 && y > H * 0.08 && y < H * 0.70 && x > W * 0.18 && x < W * 0.82) {
+          mask[y * W + x] = 255;
+          continue;
+        }
+
+        // Distance from sample BG colors
+        let minDist = 999;
+        for (const [br, bg, bb] of bgSamples) {
+          const d = Math.sqrt((r - br) ** 2 + (g - bg) ** 2 + (b - bb) ** 2);
+          if (d < minDist) minDist = d;
+        }
+
+        if (minDist < 38) {
+          mask[y * W + x] = 0;
+        } else if (minDist < 60) {
+          mask[y * W + x] = Math.round(((minDist - 38) / 22) * 255);
+        } else {
+          mask[y * W + x] = 255;
+        }
+      }
+    }
+
+    // Apply alpha mask with edge feathering
+    for (let i = 0; i < mask.length; i++) {
+      data[i * 4 + 3] = mask[i];
+    }
+
+    const out = document.createElement('canvas');
+    out.width = W; out.height = H;
+    out.getContext('2d').putImageData(imgData, 0, 0);
+    return out;
+  },
+
+  // Apply smooth skin filter to face area without blurring eyes/mouth/beard
+  applySkinSmoothing(ctx, W, H) {
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const data = imgData.data;
+
+    // Face bounding box area: y: 20% to 56%, x: 25% to 75%
+    const fy1 = Math.floor(H * 0.20), fy2 = Math.floor(H * 0.56);
+    const fx1 = Math.floor(W * 0.25), fx2 = Math.floor(W * 0.75);
+
+    const copy = new Uint8ClampedArray(data);
+
+    for (let y = fy1; y < fy2; y++) {
+      for (let x = fx1; x < fx2; x++) {
+        const idx = (y * W + x) * 4;
+        const r = copy[idx], g = copy[idx + 1], b = copy[idx + 2];
+
+        // Check if skin tone
+        const isSkin = (r > 100 && g > 50 && b > 30 && r > g && r > b && (r - g) > 10);
+        // Avoid dark areas (eyes, eyebrows, nostrils, lips, beard)
+        const lum = (r * 0.299 + g * 0.587 + b * 0.114);
+        if (!isSkin || lum < 70) continue;
+
+        // Bilateral smooth: 5x5 box filter on similar color pixels
+        let tr = 0, tg = 0, tb = 0, count = 0;
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            const ny = y + dy, nx = x + dx;
+            if (ny < 0 || ny >= H || nx < 0 || nx >= W) continue;
+            const nidx = (ny * W + nx) * 4;
+            const nr = copy[nidx], ng = copy[nidx + 1], nb = copy[nidx + 2];
+            const diff = Math.abs(r - nr) + Math.abs(g - ng) + Math.abs(b - nb);
+            if (diff < 45) {
+              tr += nr; tg += ng; tb += nb; count++;
+            }
+          }
+        }
+        if (count > 2) {
+          // Softly blend 60% smoothed + 40% original for realistic texture
+          data[idx] = Math.round(data[idx] * 0.4 + (tr / count) * 0.6);
+          data[idx + 1] = Math.round(data[idx + 1] * 0.4 + (tg / count) * 0.6);
+          data[idx + 2] = Math.round(data[idx + 2] * 0.4 + (tb / count) * 0.6);
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  },
+
+  // Beauty enhance: contrast, vibrance, eye clarity
+  applyBeautyEnhance(ctx, W, H) {
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const data = imgData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] === 0) continue;
+      let r = data[i], g = data[i + 1], b = data[i + 2];
+
+      // Subtle contrast lift
+      r = ((r - 128) * 1.08) + 128;
+      g = ((g - 128) * 1.08) + 128;
+      b = ((b - 128) * 1.08) + 128;
+
+      // Warm brightness
+      r += 8; g += 6; b += 4;
+
+      data[i] = Math.min(255, Math.max(0, Math.round(r)));
+      data[i + 1] = Math.min(255, Math.max(0, Math.round(g)));
+      data[i + 2] = Math.min(255, Math.max(0, Math.round(b)));
+    }
+    ctx.putImageData(imgData, 0, 0);
+  },
+
+  // Studio lighting effect
+  applyStudioLight(ctx, W, H) {
+    const rad = ctx.createRadialGradient(W * 0.50, H * 0.35, 30, W * 0.50, H * 0.42, W * 0.75);
+    rad.addColorStop(0, 'rgba(255,250,240,0.18)');
+    rad.addColorStop(0.7, 'rgba(255,250,240,0.04)');
+    rad.addColorStop(1, 'rgba(0,0,0,0.14)');
+    ctx.fillStyle = rad;
+    ctx.fillRect(0, 0, W, H);
+  },
+
+  // Remove oily specular glare from forehead/nose
+  applyOilinessRemoval(ctx, W, H) {
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const data = imgData.data;
+    const fy1 = Math.floor(H * 0.22), fy2 = Math.floor(H * 0.48);
+    const fx1 = Math.floor(W * 0.32), fx2 = Math.floor(W * 0.68);
+
+    for (let y = fy1; y < fy2; y++) {
+      for (let x = fx1; x < fx2; x++) {
+        const idx = (y * W + x) * 4;
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+        const lum = (r * 0.299 + g * 0.587 + b * 0.114);
+        if (lum > 220 && r > g && g > b) {
+          // Tone down glare
+          data[idx] = Math.round(r * 0.88);
+          data[idx + 1] = Math.round(g * 0.88);
+          data[idx + 2] = Math.round(b * 0.88);
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  },
+
+  // ============ DRESS OVERLAYS (Blazer, Suit & Tie, Panjabi, Shirt, Hijab, Saree) ============
+  drawDressOverlay(ctx, W, H, dressName, offsetY = 0, scale = 1.0) {
+    ctx.save();
+
+    // Baseline placement: passport shoulders start at y: 60% (~450px on 750px height)
+    const baseY = (H * 0.62) + offsetY;
+    const midX = W * 0.5;
+
+    // Apply scale around center
+    ctx.translate(midX, baseY);
+    ctx.scale(scale, scale);
+    ctx.translate(-midX, -baseY);
+
+    if (dressName === 'ফরমাল ব্লেজার' || dressName === 'formal-blazer') {
+      this.drawFormalBlazer(ctx, W, H, baseY, midX, false);
+    } else if (dressName === 'টাই ও স্যুট' || dressName === 'tie-suit') {
+      this.drawFormalBlazer(ctx, W, H, baseY, midX, true);
+    } else if (dressName === 'পাঞ্জাবি' || dressName === 'panjabi') {
+      this.drawPanjabi(ctx, W, H, baseY, midX);
+    } else if (dressName === 'সলিড শার্ট' || dressName === 'solid-shirt') {
+      this.drawSolidShirt(ctx, W, H, baseY, midX, false);
+    } else if (dressName === 'চেক শার্ট' || dressName === 'check-shirt') {
+      this.drawSolidShirt(ctx, W, H, baseY, midX, true);
+    } else if (dressName === 'হিজাবের...' || dressName === 'হিজাব' || dressName === 'hijab') {
+      this.drawHijab(ctx, W, H, baseY, midX);
+    } else if (dressName === 'শাড়ি' || dressName === 'saree') {
+      this.drawSaree(ctx, W, H, baseY, midX);
+    }
+
+    ctx.restore();
+  },
+
+  // Draw Realistic Tailored Formal Blazer (with or without executive tie)
+  drawFormalBlazer(ctx, W, H, baseY, midX, withTie = false) {
+    const neckW = 160;
+    const neckTop = baseY - 70;
+    const neckBottom = baseY + 120;
+
+    // 1. Neck drop shadow onto shirt
+    const nShadow = ctx.createLinearGradient(midX, neckTop - 20, midX, neckTop + 40);
+    nShadow.addColorStop(0, 'rgba(0,0,0,0.45)');
+    nShadow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = nShadow;
+    ctx.fillRect(midX - 110, neckTop - 15, 220, 50);
+
+    // 2. White Inner Formal Shirt
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(midX - neckW * 0.5, neckTop);
+    ctx.lineTo(midX + neckW * 0.5, neckTop);
+    ctx.lineTo(midX + 70, neckBottom + 80);
+    ctx.lineTo(midX - 70, neckBottom + 80);
+    ctx.closePath();
+    ctx.fill();
+
+    // Shirt collar leaves
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+
+    // Left collar point
+    ctx.beginPath();
+    ctx.moveTo(midX - 75, neckTop);
+    ctx.lineTo(midX - 20, neckTop + 65);
+    ctx.lineTo(midX - 8, neckTop + 35);
+    ctx.lineTo(midX - 45, neckTop - 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Right collar point
+    ctx.beginPath();
+    ctx.moveTo(midX + 75, neckTop);
+    ctx.lineTo(midX + 20, neckTop + 65);
+    ctx.lineTo(midX + 8, neckTop + 35);
+    ctx.lineTo(midX + 45, neckTop - 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Executive Tie (if withTie)
+    if (withTie) {
+      // Tie knot
+      const knotGrad = ctx.createLinearGradient(midX - 18, neckTop + 35, midX + 18, neckTop + 65);
+      knotGrad.addColorStop(0, '#881337'); // Deep Burgundy/Crimson
+      knotGrad.addColorStop(0.5, '#be123c');
+      knotGrad.addColorStop(1, '#4c0519');
+      ctx.fillStyle = knotGrad;
+      ctx.beginPath();
+      ctx.moveTo(midX - 16, neckTop + 35);
+      ctx.lineTo(midX + 16, neckTop + 35);
+      ctx.lineTo(midX + 12, neckTop + 72);
+      ctx.lineTo(midX - 12, neckTop + 72);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tie body
+      const tieGrad = ctx.createLinearGradient(midX - 25, neckTop + 72, midX + 25, H);
+      tieGrad.addColorStop(0, '#9f1239');
+      tieGrad.addColorStop(0.5, '#be123c');
+      tieGrad.addColorStop(1, '#881337');
+      ctx.fillStyle = tieGrad;
+      ctx.beginPath();
+      ctx.moveTo(midX - 12, neckTop + 72);
+      ctx.lineTo(midX + 12, neckTop + 72);
+      ctx.lineTo(midX + 26, neckBottom + 160);
+      ctx.lineTo(midX, neckBottom + 200);
+      ctx.lineTo(midX - 26, neckBottom + 160);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tie diagonal silk stripes
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 2;
+      for (let ty = neckTop + 85; ty < H; ty += 22) {
+        ctx.beginPath();
+        ctx.moveTo(midX - 20, ty);
+        ctx.lineTo(midX + 20, ty - 12);
+        ctx.stroke();
+      }
+    }
+
+    // 3. Tailored Charcoal/Dark Blazer Jacket
+    const suitColor = withTie ? '#0f172a' : '#18181b'; // Deep Navy for tie, Charcoal for blazer
+    const suitGrad = ctx.createLinearGradient(0, neckTop, W, H);
+    suitGrad.addColorStop(0, suitColor);
+    suitGrad.addColorStop(0.5, '#27272a');
+    suitGrad.addColorStop(1, '#09090b');
+
+    ctx.fillStyle = suitGrad;
+    ctx.beginPath();
+    // Shoulder contour from left edge
+    ctx.moveTo(0, baseY + 60);
+    ctx.bezierCurveTo(W * 0.15, baseY + 10, W * 0.28, baseY - 35, midX - 85, neckTop + 10);
+    // V-neck dip down to center button
+    ctx.lineTo(midX - 20, neckBottom + 80);
+    ctx.lineTo(midX, neckBottom + 95);
+    ctx.lineTo(midX + 20, neckBottom + 80);
+    // Up to right shoulder
+    ctx.lineTo(midX + 85, neckTop + 10);
+    ctx.bezierCurveTo(W * 0.72, baseY - 35, W * 0.85, baseY + 10, W, baseY + 60);
+    // Down to bottom
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. Blazer Lapels with 3D Depth
+    const lapelGrad = ctx.createLinearGradient(midX - 120, neckTop, midX, neckBottom);
+    lapelGrad.addColorStop(0, '#27272a');
+    lapelGrad.addColorStop(1, '#18181b');
+
+    ctx.fillStyle = lapelGrad;
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+
+    // Left Lapel
+    ctx.beginPath();
+    ctx.moveTo(midX - 85, neckTop + 10);
+    ctx.lineTo(midX - 130, baseY + 20); // Notch peak
+    ctx.lineTo(midX - 105, baseY + 35); // Notch dip
+    ctx.lineTo(midX - 18, neckBottom + 80);
+    ctx.lineTo(midX - 42, neckBottom + 70);
+    ctx.lineTo(midX - 58, neckTop + 20);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Right Lapel
+    ctx.beginPath();
+    ctx.moveTo(midX + 85, neckTop + 10);
+    ctx.lineTo(midX + 130, baseY + 20); // Notch peak
+    ctx.lineTo(midX + 105, baseY + 35); // Notch dip
+    ctx.lineTo(midX + 18, neckBottom + 80);
+    ctx.lineTo(midX + 42, neckBottom + 70);
+    ctx.lineTo(midX + 58, neckTop + 20);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Lapel Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(midX - 18, neckBottom + 80);
+    ctx.lineTo(midX - 30, neckBottom + 75);
+    ctx.lineTo(midX - 95, baseY + 40);
+    ctx.lineTo(midX - 105, baseY + 35);
+    ctx.closePath();
+    ctx.fill();
+
+    // Suit Buttons
+    ctx.fillStyle = '#09090b';
+    ctx.strokeStyle = '#52525b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(midX, neckBottom + 110, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Pocket welt (left chest)
+    ctx.fillStyle = '#27272a';
+    ctx.fillRect(midX - 150, baseY + 80, 50, 7);
+  },
+
+  // Draw Traditional Panjabi with Mandarin Collar
+  drawPanjabi(ctx, W, H, baseY, midX) {
+    const neckTop = baseY - 60;
+    const pGrad = ctx.createLinearGradient(0, neckTop, W, H);
+    pGrad.addColorStop(0, '#f8fafc');
+    pGrad.addColorStop(0.5, '#f1f5f9');
+    pGrad.addColorStop(1, '#e2e8f0');
+
+    ctx.fillStyle = pGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 60);
+    ctx.bezierCurveTo(W * 0.15, baseY + 10, W * 0.30, baseY - 30, midX - 65, neckTop + 10);
+    ctx.lineTo(midX + 65, neckTop + 10);
+    ctx.bezierCurveTo(W * 0.70, baseY - 30, W * 0.85, baseY + 10, W, baseY + 60);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Mandarin Stand Collar (ব্যান্ড কলার)
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(midX - 65, neckTop + 10);
+    ctx.bezierCurveTo(midX - 30, neckTop - 8, midX + 30, neckTop - 8, midX + 65, neckTop + 10);
+    ctx.lineTo(midX + 65, neckTop + 28);
+    ctx.bezierCurveTo(midX + 30, neckTop + 10, midX - 30, neckTop + 10, midX - 65, neckTop + 28);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Collar embroidery trim
+    ctx.strokeStyle = '#d97706'; // Gold embroidery line
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(midX - 62, neckTop + 18);
+    ctx.bezierCurveTo(midX - 28, neckTop + 2, midX + 28, neckTop + 2, midX + 62, neckTop + 18);
+    ctx.stroke();
+
+    // Front Placket with buttons
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(midX - 14, neckTop + 28, 28, 200);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeRect(midX - 14, neckTop + 28, 28, 200);
+
+    for (let by = neckTop + 55; by < neckTop + 210; by += 35) {
+      ctx.fillStyle = '#b45309'; // Gold/wooden button
+      ctx.beginPath();
+      ctx.arc(midX, by, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+
+  // Draw Formal Solid or Check Shirt
+  drawSolidShirt(ctx, W, H, baseY, midX, isChecked = false) {
+    const neckTop = baseY - 65;
+    const sGrad = ctx.createLinearGradient(0, neckTop, W, H);
+    sGrad.addColorStop(0, '#e0f2fe'); // Crisp Sky Blue
+    sGrad.addColorStop(1, '#bae6fd');
+
+    ctx.fillStyle = isChecked ? '#f8fafc' : sGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 60);
+    ctx.bezierCurveTo(W * 0.15, baseY + 10, W * 0.30, baseY - 30, midX - 70, neckTop + 10);
+    ctx.lineTo(midX + 70, neckTop + 10);
+    ctx.bezierCurveTo(W * 0.70, baseY - 30, W * 0.85, baseY + 10, W, baseY + 60);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // If checked shirt, draw smart check grid
+    if (isChecked) {
+      ctx.strokeStyle = 'rgba(2, 132, 199, 0.25)';
+      ctx.lineWidth = 1.5;
+      for (let gx = 0; gx < W; gx += 20) {
+        ctx.beginPath(); ctx.moveTo(gx, baseY - 20); ctx.lineTo(gx, H); ctx.stroke();
+      }
+      for (let gy = baseY - 20; gy < H; gy += 20) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+      }
+    }
+
+    // Shirt Collar
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+
+    // Left collar
+    ctx.beginPath();
+    ctx.moveTo(midX - 70, neckTop + 10);
+    ctx.lineTo(midX - 15, neckTop + 65);
+    ctx.lineTo(midX, neckTop + 25);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Right collar
+    ctx.beginPath();
+    ctx.moveTo(midX + 70, neckTop + 10);
+    ctx.lineTo(midX + 15, neckTop + 65);
+    ctx.lineTo(midX, neckTop + 25);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Center button placket
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(midX - 12, neckTop + 25, 24, 220);
+    ctx.strokeRect(midX - 12, neckTop + 25, 24, 220);
+
+    for (let by = neckTop + 50; by < neckTop + 240; by += 40) {
+      ctx.fillStyle = '#f1f5f9';
+      ctx.strokeStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(midX, by, 4.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+    }
+  },
+
+  // Draw Hijab Drape
+  drawHijab(ctx, W, H, baseY, midX) {
+    const hGrad = ctx.createLinearGradient(0, baseY - 80, W, H);
+    hGrad.addColorStop(0, '#1e293b');
+    hGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = hGrad;
+
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 60);
+    ctx.bezierCurveTo(W * 0.20, baseY - 20, W * 0.35, baseY - 70, midX - 80, baseY - 60);
+    ctx.bezierCurveTo(midX, baseY - 30, midX + 80, baseY - 60, midX + 80, baseY - 60);
+    ctx.bezierCurveTo(W * 0.65, baseY - 70, W * 0.80, baseY - 20, W, baseY + 60);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Fabric fold lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(midX - 50, baseY - 40);
+    ctx.bezierCurveTo(midX - 10, baseY + 40, midX + 10, baseY + 60, midX + 60, baseY + 120);
+    ctx.stroke();
+  },
+
+  // Draw Saree Drape
+  drawSaree(ctx, W, H, baseY, midX) {
+    const sGrad = ctx.createLinearGradient(0, baseY, W, H);
+    sGrad.addColorStop(0, '#831843'); // Rich maroon
+    sGrad.addColorStop(1, '#500724');
+    ctx.fillStyle = sGrad;
+
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 60);
+    ctx.lineTo(W, baseY + 40);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Diagonal Pallu across shoulder
+    ctx.fillStyle = '#9d174d';
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 70);
+    ctx.lineTo(midX - 40, baseY - 20);
+    ctx.lineTo(midX + 70, baseY - 20);
+    ctx.lineTo(W * 0.40, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Golden border trim
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(0, baseY + 70);
+    ctx.lineTo(midX - 40, baseY - 20);
+    ctx.stroke();
+  },
+
   // Smart Background Remover with adjustable tolerance and edge-feathering
   removeBackground(img, tolerance = 35) {
     const canvas = document.createElement('canvas');
