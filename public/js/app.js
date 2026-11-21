@@ -352,8 +352,14 @@ const App = {
       ${this.footerHtml()}`;
   },
 
-  // ===================== 2. AI PHOTO STUDIO (Matching image-10, 11, 12, 13) =====================
+  // ===================== 2. AI PHOTO STUDIO (Matching image-10, 11, 12, 13, 14) =====================
   renderAiPhotoStudio(el) {
+    window._aiBgColor = window._aiBgColor || '#0284C7';
+    window._aiSelectedDress = window._aiSelectedDress || 'বর্তমান পোশাক';
+    window._aiSelectedInstructions = window._aiSelectedInstructions || ['সৌন্দর্য বৃদ্ধি', 'ত্বক মসৃণ', 'স্টুডিও লাইট'];
+    window._aiDressOffsetY = 0;
+    window._aiDressScale = 1.0;
+
     el.innerHTML = `
       <div class="container py-6">
         <div class="studio-layout">
@@ -362,14 +368,14 @@ const App = {
           <div class="studio-card">
             <div class="studio-section-head">
               <span>🎨 ব্যাকগ্রাউন্ড কালার</span>
-              <span class="text-xs text-muted" id="aiBgLabel">সাদা</span>
+              <span class="text-xs text-muted" id="aiBgLabel">আকাশী</span>
             </div>
             <div class="studio-color-row">
-              <div class="studio-color-circle active" style="background:#ffffff;border:1px solid #ccc;color:#0F9D58" onclick="App.setAiBg('#ffffff','সাদা',this)">✓</div>
+              <div class="studio-color-circle" style="background:#ffffff;border:1px solid #ccc;color:#0F9D58" onclick="App.setAiBg('#ffffff','সাদা',this)"></div>
               <div class="studio-color-circle" style="background:#E0F2FE" onclick="App.setAiBg('#E0F2FE','হালকা নীল',this)"></div>
               <div class="studio-color-circle" style="background:#1E40AF" onclick="App.setAiBg('#1E40AF','ডিপ নীল',this)"></div>
-              <div class="studio-color-circle" style="background:#0284C7" onclick="App.setAiBg('#0284C7','আকাশী',this)"></div>
-              <input type="color" id="aiCustomColor" value="#ffffff" onchange="App.setAiBg(this.value,'কাস্টম',this)" title="কাস্টম কালার" style="width:34px;height:34px;cursor:pointer;border-radius:8px;border:none">
+              <div class="studio-color-circle active" style="background:#0284C7;color:#ffffff" onclick="App.setAiBg('#0284C7','আকাশী',this)">✓</div>
+              <input type="color" id="aiCustomColor" value="#0284C7" onchange="App.setAiBg(this.value,'কাস্টম',this)" title="কাস্টম কালার" style="width:34px;height:34px;cursor:pointer;border-radius:8px;border:none">
             </div>
 
             <!-- পোশাকের ধরন -->
@@ -378,10 +384,10 @@ const App = {
               <span class="badge badge-green">১০</span>
             </div>
             <div class="studio-grid-options mb-4" id="dressOptions">
-              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🚫</span><span class="studio-opt-label">বর্তমান পোশাক</span></div>
+              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🚫</span><span class="studio-opt-label">বর্তমান পোশাক</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">👔</span><span class="studio-opt-label">সলিড শার্ট</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">👕</span><span class="studio-opt-label">চেক শার্ট</span></div>
-              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🧥</span><span class="studio-opt-label">ফরমাল ব্লেজার</span></div>
+              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🧥</span><span class="studio-opt-label">ফরমাল ব্লেজার</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🤵</span><span class="studio-opt-label">টাই ও স্যুট</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🥼</span><span class="studio-opt-label">পাঞ্জাবি</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'dress')"><span class="studio-opt-icon">🧕</span><span class="studio-opt-label">হিজাবের...</span></div>
@@ -394,9 +400,9 @@ const App = {
               <span class="badge badge-green">১৫</span>
             </div>
             <div class="studio-grid-options mb-4" id="instructOptions">
-              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">✨</span><span class="studio-opt-label">সৌন্দর্য বৃদ্ধি</span></div>
-              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">😊</span><span class="studio-opt-label">ত্বক মসৃণ</span></div>
-              <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💡</span><span class="studio-opt-label">স্টুডিও লাইট</span></div>
+              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">✨</span><span class="studio-opt-label">সৌন্দর্য বৃদ্ধি</span></div>
+              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">😊</span><span class="studio-opt-label">ত্বক মসৃণ</span></div>
+              <div class="studio-opt-btn active" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💡</span><span class="studio-opt-label">স্টুডিও লাইট</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">👤</span><span class="studio-opt-label">মাথা সোজা</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">💇</span><span class="studio-opt-label">চুল পরিপাটি</span></div>
               <div class="studio-opt-btn" onclick="App.toggleOpt(this,'inst')"><span class="studio-opt-icon">👓</span><span class="studio-opt-label">চশমা বাদ</span></div>
@@ -411,7 +417,7 @@ const App = {
               <input type="text" id="aiCustomPrompt" class="form-input text-xs" maxlength="50" placeholder="যেমন: মুখে হালকা হাসি দাও, ইত্যাদি">
             </div>
 
-            <button class="btn btn-primary w-full btn-lg font-bold" onclick="App.generateAiPhoto()">
+            <button id="aiGenerateBtn" class="btn btn-primary w-full btn-lg font-bold" onclick="App.generateAiPhoto()">
               🪄 ছবি তৈরি করুন (2 Ai Coin)
             </button>
           </div>
@@ -441,9 +447,30 @@ const App = {
             </div>
 
             <!-- Under Canvas Quick Actions -->
-            <div id="aiCanvasSubActions" class="flex justify-center gap-3 hidden pt-3 border-t">
-              <button class="btn btn-outline btn-xs" onclick="App.openCropModal()">⟲ রিসাইজ / ক্রপ</button>
-              <button class="btn btn-outline btn-xs" onclick="$('#aiPhotoUploadInput').click()">↑ পরিবর্তন</button>
+            <div id="aiCanvasSubActions" class="space-y-3 hidden pt-3 border-t">
+              <div class="flex justify-center gap-3">
+                <button class="btn btn-outline btn-xs" onclick="App.openCropModal()">⟲ রিসাইজ / ক্রপ</button>
+                <button class="btn btn-outline btn-xs" onclick="$('#aiPhotoUploadInput').click()">↑ পরিবর্তন</button>
+                <button class="btn btn-primary btn-xs" onclick="App.generateAiPhoto()">✨ পোশাক ও ব্যাকগ্রাউন্ড প্রয়োগ করুন</button>
+              </div>
+
+              <!-- Dress Fine-Tuning Box -->
+              <div id="aiDressFineTune" class="p-3 bg-surface-alt rounded-xl text-xs border space-y-2">
+                <div class="flex justify-between items-center font-bold text-forest">
+                  <span>⚙️ পোশাক সমন্বয় (Fine-tune Fit)</span>
+                  <button class="btn btn-ghost btn-xs text-primary" onclick="App.resetDressTune()">রিসেট</button>
+                </div>
+                <div class="grid grid-2 gap-3">
+                  <div>
+                    <label class="block text-muted mb-1">পজিশন: <span id="posVal">0px</span></label>
+                    <input type="range" min="-40" max="40" value="0" class="w-full" oninput="App.tuneDressPos(this.value)">
+                  </div>
+                  <div>
+                    <label class="block text-muted mb-1">সাইজ: <span id="scaleVal">100%</span></label>
+                    <input type="range" min="80" max="120" value="100" class="w-full" oninput="App.tuneDressScale(this.value)">
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="text-center text-xs text-muted mt-2">পরিমাপ: ৪০ x ৫০ মিমি (পাসপোর্ট)</div>
           </div>
@@ -493,20 +520,47 @@ const App = {
   },
 
   setAiBg(color, label, el) {
-    $$('.studio-color-circle').forEach(c => c.classList.remove('active'));
+    $$('.studio-color-circle').forEach(c => {
+      c.classList.remove('active');
+      c.textContent = '';
+    });
     el.classList.add('active');
+    el.textContent = '✓';
     $('#aiBgLabel').textContent = label;
     window._aiBgColor = color;
-    if (window._aiCroppedImg) App.renderAiCanvasFinal();
+    if (window._aiCroppedImg) App.generateAiPhoto(true); // fast re-render without deducting coins
   },
 
   toggleOpt(btn, group) {
     if (group === 'dress') {
       $$('#dressOptions .studio-opt-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      window._aiSelectedDress = btn.querySelector('.studio-opt-label').textContent.trim();
     } else {
       btn.classList.toggle('active');
+      window._aiSelectedInstructions = Array.from($$('#instructOptions .studio-opt-btn.active')).map(b => b.querySelector('.studio-opt-label').textContent.trim());
     }
+    if (window._aiCroppedImg) App.generateAiPhoto(true); // fast live update
+  },
+
+  tuneDressPos(val) {
+    window._aiDressOffsetY = parseInt(val) || 0;
+    $('#posVal').textContent = `${val}px`;
+    if (window._aiCroppedImg) App.generateAiPhoto(true);
+  },
+
+  tuneDressScale(val) {
+    window._aiDressScale = (parseInt(val) || 100) / 100;
+    $('#scaleVal').textContent = `${val}%`;
+    if (window._aiCroppedImg) App.generateAiPhoto(true);
+  },
+
+  resetDressTune() {
+    window._aiDressOffsetY = 0;
+    window._aiDressScale = 1.0;
+    $('#posVal').textContent = '0px';
+    $('#scaleVal').textContent = '100%';
+    if (window._aiCroppedImg) App.generateAiPhoto(true);
   },
 
   async handleAiPhotoFile(e) {
@@ -543,48 +597,69 @@ const App = {
   confirmAiCrop() {
     closeModal();
     window._aiCroppedImg = window._aiRawImg;
-    App.renderAiCanvasFinal();
+    App.generateAiPhoto(true); // Automatically render cropped image with selected dress & bg!
     toast('পাসপোর্ট সাইজ ক্রপ নিশ্চিত করা হয়েছে');
   },
 
-  renderAiCanvasFinal() {
-    const canvas = $('#aiCanvas');
-    if (!canvas || !window._aiCroppedImg) return;
-    const bg = window._aiBgColor || '#ffffff';
-    const c = Tools.processPhoto(window._aiCroppedImg, { w: 600, h: 750, bg, border: 2, brightness: 105, contrast: 105 });
-
-    canvas.width = c.width; canvas.height = c.height;
-    canvas.getContext('2d').drawImage(c, 0, 0);
-
-    canvas.classList.remove('hidden');
-    $('#aiEmptyPlaceholder')?.classList.add('hidden');
-    $('#aiCanvasSubActions')?.classList.remove('hidden');
-  },
-
-  generateAiPhoto() {
+  async generateAiPhoto(isLivePreview = false) {
     if (!window._aiCroppedImg) return toast('প্রথমে ছবি নির্বাচন ও ক্রপ করুন', true);
-    if (!Store.spendCredits(2)) return toast('পর্যাপ্ত AI কয়েন নেই! টপ-আপ করুন', true);
-    $('#aiCoinCount').textContent = `${Store.state.credits} কয়েন`;
 
-    // Apply smart enhancement and redraw
-    const canvas = $('#aiCanvas');
-    const c = Tools.processPhoto(window._aiCroppedImg, { w: 600, h: 750, bg: window._aiBgColor || '#ffffff', border: 0, brightness: 108, contrast: 110 });
-    canvas.width = c.width; canvas.height = c.height;
-    canvas.getContext('2d').drawImage(c, 0, 0);
+    if (!isLivePreview) {
+      if (!Store.spendCredits(2)) return toast('পর্যাপ্ত AI কয়েন নেই! টপ-আপ করুন', true);
+      $('#aiCoinCount').textContent = `${Store.state.credits} কয়েন`;
+    }
 
-    // Add to History
-    const hid = 'Oca' + Math.random().toString(36).slice(2, 8) + '-' + Date.now().toString(36).slice(-4);
-    const item = document.createElement('div');
-    item.className = 'p-2 border rounded-xl flex items-center justify-between text-xs hover:bg-surface-alt';
-    item.innerHTML = `
-      <div class="flex items-center gap-2">
-        <img src="${canvas.toDataURL()}" style="width:36px;height:44px;object-fit:cover;border-radius:6px">
-        <span class="font-mono text-xs">${hid}</span>
-      </div>
-      <button class="text-red-500 text-xs" onclick="this.parentElement.remove()">🗑️</button>`;
-    $('#aiHistoryList')?.prepend(item);
+    const genBtn = $('#aiGenerateBtn');
+    if (genBtn && !isLivePreview) {
+      genBtn.disabled = true;
+      genBtn.innerHTML = '⏳ AI প্রসেসিং হচ্ছে...';
+    }
 
-    toast('AI পাসপোর্ট ছবি প্রস্তুত! (-২ কয়েন)');
+    try {
+      const canvas = $('#aiCanvas');
+      const resultCanvas = await Tools.processAiPhoto(window._aiCroppedImg, {
+        bg: window._aiBgColor || '#0284C7',
+        dress: window._aiSelectedDress || 'ফরমাল ব্লেজার',
+        instructions: window._aiSelectedInstructions || ['সৌন্দর্য বৃদ্ধি', 'ত্বক মসৃণ', 'স্টুডিও লাইট'],
+        dressOffsetY: window._aiDressOffsetY || 0,
+        dressScale: window._aiDressScale || 1.0,
+        w: 600,
+        h: 750
+      });
+
+      canvas.width = resultCanvas.width;
+      canvas.height = resultCanvas.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(resultCanvas, 0, 0);
+
+      canvas.classList.remove('hidden');
+      $('#aiEmptyPlaceholder')?.classList.add('hidden');
+      $('#aiCanvasSubActions')?.classList.remove('hidden');
+
+      if (!isLivePreview) {
+        // Add to History
+        const hid = 'Oca' + Math.random().toString(36).slice(2, 8) + '-' + Date.now().toString(36).slice(-4);
+        const item = document.createElement('div');
+        item.className = 'p-2 border rounded-xl flex items-center justify-between text-xs hover:bg-surface-alt';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <img src="${canvas.toDataURL()}" style="width:36px;height:44px;object-fit:cover;border-radius:6px">
+            <span class="font-mono text-xs">${hid}</span>
+          </div>
+          <button class="text-red-500 text-xs" onclick="this.parentElement.remove()">🗑️</button>`;
+        $('#aiHistoryList')?.prepend(item);
+
+        toast('AI পাসপোর্ট ছবি প্রস্তুত! (-২ কয়েন)');
+      }
+    } catch (err) {
+      console.error('AI Photo Error:', err);
+      if (!isLivePreview) toast('ছবি প্রসেসিংয়ে সমস্যা হয়েছে, আবার চেষ্টা করুন', true);
+    } finally {
+      if (genBtn && !isLivePreview) {
+        genBtn.disabled = false;
+        genBtn.innerHTML = '🪄 ছবি তৈরি করুন (2 Ai Coin)';
+      }
+    }
   },
 
   downloadAiPhoto() {
