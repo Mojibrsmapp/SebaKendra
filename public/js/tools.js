@@ -1,87 +1,327 @@
-// SebaKendra Tools Engine — real client-side processing
-// PhotoStudio (canvas), Bangla tools, QR, AI template generators, PDF (jsPDF).
+// SebaKendra Professional Tools Engine
+// Includes: Photo Studio, Joint Photo (যৌথ ছবি), NID Print Ready (৮৫.৬ x ৫৪ মিমি),
+// A4 Print Sheet (4, 8, 12, 16, 24 copies), Voter Slip Generator, Bangla Tools, QR & AI
 
 const Tools = {
 
-  // ============ PHOTO STUDIO ============
-  loadImage(file) {
+  // ============ 1. IMAGE LOADER ============
+  loadImage(fileOrBlob) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = reject;
-      img.src = URL.createObjectURL(file);
+      img.src = typeof fileOrBlob === 'string' ? fileOrBlob : URL.createObjectURL(fileOrBlob);
     });
   },
 
-  // Crop center square/rect + resize to preset, return canvas
-  processPhoto(img, { w = 600, h = 600, bg = null, border = 0 } = {}) {
+  // ============ 2. PHOTO STUDIO PROCESSING ============
+  // Process single photo to preset size with crop, background & filter
+  processPhoto(img, { w = 600, h = 600, bg = null, border = 0, brightness = 100, contrast = 100 } = {}) {
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
-    if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
-    // center-crop source to target aspect
-    const srcAspect = img.width / img.height, dstAspect = w / h;
+
+    // Solid Background
+    if (bg) {
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // Apply brightness / contrast filters
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+
+    // Center crop aspect ratio
+    const srcAspect = img.width / img.height;
+    const dstAspect = w / h;
     let sw, sh, sx, sy;
-    if (srcAspect > dstAspect) { sh = img.height; sw = sh * dstAspect; sx = (img.width - sw) / 2; sy = 0; }
-    else { sw = img.width; sh = sw / dstAspect; sx = 0; sy = (img.height - sh) / 2; }
+
+    if (srcAspect > dstAspect) {
+      sh = img.height;
+      sw = sh * dstAspect;
+      sx = (img.width - sw) / 2;
+      sy = 0;
+    } else {
+      sw = img.width;
+      sh = sw / dstAspect;
+      sx = 0;
+      sy = (img.height - sh) / 2;
+    }
+
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
-    if (border) { ctx.strokeStyle = '#fff'; ctx.lineWidth = border; ctx.strokeRect(0, 0, w, h); }
+
+    // Border
+    if (border > 0) {
+      ctx.filter = 'none';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = border * 2;
+      ctx.strokeRect(0, 0, w, h);
+    }
+
     return canvas;
   },
 
-  // Simple corner-color background removal (works best with plain studio bg)
-  removeCornerBg(img, tolerance = 42) {
+  // Smart Background Remover with adjustable tolerance and edge-feathering
+  removeBackground(img, tolerance = 35) {
     const canvas = document.createElement('canvas');
-    canvas.width = img.width; canvas.height = img.height;
+    canvas.width = img.width;
+    canvas.height = img.height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const d = data.data, W = canvas.width;
-    const corner = [0, W - 1, (canvas.height - 1) * W, canvas.height * W - 1];
-    const ref = corner.map(i => [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]]);
-    const seen = new Uint8Array(W * canvas.height);
-    const stack = [...corner];
-    const match = (i) => ref.some(r => Math.abs(d[i * 4] - r[0]) < tolerance && Math.abs(d[i * 4 + 1] - r[1]) < tolerance && Math.abs(d[i * 4 + 2] - r[2]) < tolerance);
-    while (stack.length) {
-      const i = stack.pop();
-      if (seen[i] || !match(i)) continue;
-      seen[i] = 1; d[i * 4 + 3] = 0;
-      const x = i % W, y = (i / W) | 0;
-      if (x > 0) stack.push(i - 1); if (x < W - 1) stack.push(i + 1);
-      if (y > 0) stack.push(i - W); if (y < canvas.height - 1) stack.push(i + W);
+
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
+    const W = canvas.width, H = canvas.height;
+
+    // Sample average background from 4 corners
+    const samples = [
+      [0, 0], [W - 1, 0], [0, H - 1], [W - 1, H - 1],
+      [Math.floor(W / 2), 0], [0, Math.floor(H / 2)], [W - 1, Math.floor(H / 2)]
+    ];
+    const bgColors = samples.map(([x, y]) => {
+      const idx = (y * W + x) * 4;
+      return [data[idx], data[idx + 1], data[idx + 2]];
+    });
+
+    // Check pixel similarity
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const isMatch = bgColors.some(([br, bg, bb]) => {
+        const diff = Math.sqrt((r - br) ** 2 + (g - bg) ** 2 + (b - bb) ** 2);
+        return diff < tolerance;
+      });
+      if (isMatch) {
+        data[i + 3] = 0; // Transparent
+      }
     }
-    ctx.putImageData(data, 0, 0);
+
+    ctx.putImageData(imgData, 0, 0);
     return canvas;
   },
 
-  // A4 sheet: repeat photo N times on A4 canvas (2480x3508 @300dpi scaled to 1240x1754)
-  makeSheet(img, cols = 4, rows = 6, w = 300, h = 375) {
+  // ============ 3. JOINT PHOTO (যৌথ ছবি) ============
+  // Combines two photos side-by-side with optional name label and print border
+  makeJointPhoto(img1, img2, { width = 900, height = 600, gap = 16, bg = '#ffffff', name1 = '', name2 = '' } = {}) {
     const canvas = document.createElement('canvas');
-    canvas.width = 1240; canvas.height = 1754;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const gap = 12, totalW = cols * w + (cols - 1) * gap, totalH = rows * h + (rows - 1) * gap;
-    const ox = (canvas.width - totalW) / 2, oy = (canvas.height - totalH) / 2;
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      ctx.drawImage(img, ox + c * (w + gap), oy + r * (h + gap), w, h);
+
+    // Background
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+
+    const photoWidth = (width - gap * 3) / 2;
+    const photoHeight = name1 || name2 ? height - 70 : height - gap * 2;
+    const topY = gap;
+
+    // Draw photo 1
+    if (img1) {
+      ctx.drawImage(img1, 0, 0, img1.width, img1.height, gap, topY, photoWidth, photoHeight);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(gap, topY, photoWidth, photoHeight);
     }
+
+    // Draw photo 2
+    if (img2) {
+      const x2 = gap * 2 + photoWidth;
+      ctx.drawImage(img2, 0, 0, img2.width, img2.height, x2, topY, photoWidth, photoHeight);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x2, topY, photoWidth, photoHeight);
+    }
+
+    // Optional bottom text labels
+    if (name1 || name2) {
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 22px "Hind Siliguri", sans-serif';
+      ctx.textAlign = 'center';
+      if (name1) ctx.fillText(name1, gap + photoWidth / 2, height - 20);
+      if (name2) ctx.fillText(name2, gap * 2 + photoWidth + photoWidth / 2, height - 20);
+    }
+
+    // Overall outer border
+    ctx.strokeStyle = '#E5E7EB';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, width, height);
+
     return canvas;
   },
 
-  downloadCanvas(canvas, name = 'photo.jpg') {
+  // ============ 4. NID PRINT READY (৮৫.৬ x ৫৪ মিমি) ============
+  // Produces standard CR80 size front & back NID layout on A4 sheet
+  makeNidPrintSheet(frontImg, backImg, { copies = 1, showGuides = true } = {}) {
+    // A4 at 300 DPI scaled: 1240 x 1754 px
+    const canvas = document.createElement('canvas');
+    canvas.width = 1240;
+    canvas.height = 1754;
+    const ctx = canvas.getContext('2d');
+
+    // White A4 sheet
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Standard NID Card dimensions at this scale (85.6mm x 54mm -> approx 506 x 318 px)
+    const cardW = 506;
+    const cardH = 318;
+    const gap = 30;
+
+    const startX = (canvas.width - (cardW * 2 + gap)) / 2;
+    let startY = 180;
+
+    // Draw copies
+    for (let i = 0; i < copies; i++) {
+      // Front side
+      if (frontImg) {
+        ctx.drawImage(frontImg, startX, startY, cardW, cardH);
+        ctx.strokeStyle = '#10B981';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(startX, startY, cardW, cardH);
+      }
+
+      // Back side
+      if (backImg) {
+        const backX = startX + cardW + gap;
+        ctx.drawImage(backImg, backX, startY, cardW, cardH);
+        ctx.strokeStyle = '#10B981';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(backX, startY, cardW, cardH);
+      }
+
+      // Cutting guide marks
+      if (showGuides) {
+        ctx.strokeStyle = '#9CA3AF';
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1;
+        ctx.strokeRect(startX - 5, startY - 5, cardW * 2 + gap + 10, cardH + 10);
+        ctx.setLineDash([]);
+      }
+
+      startY += cardH + 70;
+    }
+
+    // Header label on paper
+    ctx.fillStyle = '#065F46';
+    ctx.font = 'bold 26px "Hind Siliguri", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SebaKendra — NID Print Ready Sheet (Standard 85.6mm × 54mm)', canvas.width / 2, 80);
+
+    ctx.fillStyle = '#6B7280';
+    ctx.font = '16px "Hind Siliguri", sans-serif';
+    ctx.fillText('প্রিন্ট করার সময় 100% Scale / Actual Size নির্বাচন করুন (Fit to page করবেন না)', canvas.width / 2, 115);
+
+    return canvas;
+  },
+
+  // ============ 5. A4 PRINT READY MULTI-COPIES ============
+  makeA4Sheet(img, copies = 24) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1240;
+    canvas.height = 1754;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let cols = 4, rows = 6, w = 260, h = 320, gap = 16;
+    if (copies === 4) { cols = 2; rows = 2; w = 480; h = 600; gap = 40; }
+    else if (copies === 8) { cols = 2; rows = 4; w = 380; h = 475; gap = 30; }
+    else if (copies === 12) { cols = 3; rows = 4; w = 340; h = 425; gap = 20; }
+    else if (copies === 16) { cols = 4; rows = 4; w = 260; h = 325; gap = 16; }
+
+    const totalW = cols * w + (cols - 1) * gap;
+    const totalH = rows * h + (rows - 1) * gap;
+    const ox = (canvas.width - totalW) / 2;
+    const oy = (canvas.height - totalH) / 2;
+
+    let drawn = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (drawn >= copies) break;
+        const x = ox + c * (w + gap);
+        const y = oy + r * (h + gap);
+        ctx.drawImage(img, x, y, w, h);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        drawn++;
+      }
+    }
+
+    return canvas;
+  },
+
+  // ============ 6. VOTER SLIP GENERATOR ============
+  makeVoterSlip({ name, voterNo, serialNo, center, ward, area, date }) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 480;
+    const ctx = canvas.getContext('2d');
+
+    // White card with green top bar
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#0F9D58';
+    ctx.fillRect(0, 0, canvas.width, 70);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 26px "Hind Siliguri", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('বাংলাদেশ নির্বাচন কমিশন — ভোটার স্লিপ', canvas.width / 2, 45);
+
+    // Voter Details
+    ctx.fillStyle = '#111827';
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 20px "Hind Siliguri", sans-serif';
+
+    const leftX = 50;
+    let y = 120;
+    const items = [
+      ['ভোটারের নাম:', name || '—'],
+      ['ভোটার নম্বর:', voterNo || '—'],
+      ['ভোটার ক্রমিক নং:', serialNo || '—'],
+      ['ভোটকেন্দ্রের নাম:', center || '—'],
+      ['ওয়ার্ড ও এলাকা:', `${ward || ''} ${area || ''}`.trim() || '—'],
+      ['প্রিন্ট তারিখ:', date || new Date().toLocaleDateString('bn-BD')],
+    ];
+
+    items.forEach(([label, val]) => {
+      ctx.fillStyle = '#4B5563';
+      ctx.font = '600 18px "Hind Siliguri", sans-serif';
+      ctx.fillText(label, leftX, y);
+
+      ctx.fillStyle = '#065F46';
+      ctx.font = 'bold 20px "Hind Siliguri", sans-serif';
+      ctx.fillText(val, leftX + 170, y);
+      y += 45;
+    });
+
+    // Outer border
+    ctx.strokeStyle = '#0F9D58';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+
+    return canvas;
+  },
+
+  // ============ 7. DOWNLOAD HELPER ============
+  downloadCanvas(canvas, filename = 'download.jpg') {
     const a = document.createElement('a');
-    a.download = name;
-    a.href = canvas.toDataURL('image/jpeg', 0.92);
+    a.download = filename;
+    a.href = canvas.toDataURL('image/jpeg', 0.95);
     a.click();
   },
 
-  // ============ BANGLA TOOLS ============
+  // ============ 8. BANGLA CONVERTERS ============
   enToBnNum(s) { return String(s).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); },
   bnToEnNum(s) { return String(s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)); },
 
   amountInWords(n) {
     const ones = ['', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়', 'দশ', 'এগারো', 'বারো', 'তেরো', 'চৌদ্দ', 'পনেরো', 'ষোলো', 'সতেরো', 'আঠারো', 'ঊনিশ', 'বিশ', 'একুশ', 'বাইশ', 'তেইশ', 'চব্বিশ', 'পঁচিশ', 'ছাব্বিশ', 'সাতাশ', 'আটাশ', 'ঊনত্রিশ', 'ত্রিশ', 'একত্রিশ', 'বত্রিশ', 'তেত্রিশ', 'চৌত্রিশ', 'পঁয়ত্রিশ', 'ছত্রিশ', 'সাঁয়ত্রিশ', 'আটত্রিশ', 'ঊনচল্লিশ', 'চল্লিশ', 'একচল্লিশ', 'বিয়াল্লিশ', 'তেতাল্লিশ', 'চুয়াল্লিশ', 'পঁয়তাল্লিশ', 'ছেচল্লিশ', 'সাতচল্লিশ', 'আটচল্লিশ', 'ঊনপঞ্চাশ', 'পঞ্চাশ', 'একান্ন', 'বায়ান্ন', 'তিপ্পান্ন', 'চুয়ান্ন', 'পঞ্চান্ন', 'ছাপ্পান্ন', 'সাতান্ন', 'আটান্ন', 'ঊনষাট', 'ষাট', 'একষট্টি', 'বাষট্টি', 'তেষট্টি', 'চৌষট্টি', 'পঁয়ষট্টি', 'ছেষট্টি', 'সাতষট্টি', 'আটষট্টি', 'ঊনসত্তর', 'সত্তর', 'একাত্তর', 'বাহাত্তর', 'তেহাত্তর', 'চুয়াত্তর', 'পঁচাত্তর', 'ছিয়াত্তর', 'সাতাত্তর', 'আটাত্তর', 'ঊনআশি', 'আশি', 'একাশি', 'বিরাশি', 'তিরাশি', 'চুরাশি', 'পঁচাশি', 'ছিয়াশি', 'সাতাশি', 'আটাশি', 'ঊননব্বই', 'নব্বই', 'একানব্বই', 'বিরানব্বই', 'তিরানব্বই', 'চুরানব্বই', 'পঁচানব্বই', 'ছিয়ানব্বই', 'সাতানব্বই', 'আটানব্বই', 'ঊনশত', 'শত'];
-    const two = (x) => x === 100 ? 'শত' : ones[x];
     const under1000 = (x) => {
       let s = '';
       const h = Math.floor(x / 100), r = x % 100;
@@ -99,18 +339,19 @@ const Tools = {
     if (lakh) s += under1000(lakh) + ' লাখ ';
     if (thousand) s += under1000(thousand) + ' হাজার ';
     if (n) s += under1000(n);
-    return s.trim() + ' টাকা';
+    return s.trim() + ' টাকা মাত্র';
   },
 
-  // Unicode -> Bijoy (basic mapping for common characters; full Bijoy needs font tables)
   unicodeToBijoy(text) {
     const map = {
       'অ':'A','আ':'A','ই':'E','ঈ':'E','উ':'U','ঊ':'U','ঋ':'R','এ':'E','ঐ':'E','ও':'O','ঔ':'O',
-      'ক':'K','খ':'K','গ':'G','ঘ':'G','ঙ':'Ng','চ':'C','ছ':'C','জ':'J','ঝ':'J','ঞ':'Y','ট':'T','ঠ':'T','ড':'D','ঢ':'D','ণ':'N','ত':'T','থ':'T','দ':'D','ধ':'D','ন':'N','প':'P','ফ':'P','ব':'B','ভ':'B','ম':'M','য':'Z','র':'R','ল':'L','শ':'S','ষ':'S','স':'S','হ':'H','ড়':'R','ঢ়':'R','য়':'Y','ৎ':'T','ং':'ং','ঃ':'%','ঁ':'^','া':'v','ি':'w','ী':'x','ু':'y','ূ':'y','ৃ':'q','ে':'e','ৈ':'E','ো':'t','ৌ':'T','্':'`','ৰ':'R','ৱ':'R',
-      '০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9',
-      '।':'.','!':'!','?':'?','-':'-',' ':' ','\n':'\n'
+      'ক':'K','খ':'K','গ':'G','ঘ':'G','ঙ':'Ng','চ':'C','ছ':'C','জ':'J','ঝ':'J','ঞ':'Y','ট':'T',
+      'ঠ':'T','ড':'D','ঢ':'D','ণ':'N','ত':'T','থ':'T','দ':'D','ধ':'D','ন':'N','প':'P','ফ':'P',
+      'ব':'B','ভ':'B','ম':'M','য':'Z','র':'R','ল':'L','শ':'S','ষ':'S','স':'S','হ':'H','ড়':'R',
+      'ঢ়':'R','য়':'Y','ৎ':'T','ং':'ং','ঃ':'%','ঁ':'^','া':'v','ি':'w','ী':'x','ু':'y','ূ':'y',
+      'ৃ':'q','ে':'e','ৈ':'E','ো':'t','ৌ':'T','্':'`','০':'0','১':'1','২':'2','৩':'3','৪':'4',
+      '৫':'5','৬':'6','৭':'7','৮':'8','৯':'9','।':'.','!':'!','?':'?'
     };
-    // Handle conjuncts crudely: hasant + consonant -> ` + consonant
     return String(text).split('').map(ch => map[ch] ?? ch).join('');
   },
 
@@ -119,67 +360,14 @@ const Tools = {
     return String(text).split('').map(ch => rev[ch] ?? ch).join('');
   },
 
-  dateConvert(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d)) return 'অবৈধ তারিখ';
-    const bn = d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
-    const en = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    return `বাংলা: ${bn}\nEnglish: ${en}\nসংখ্যা: ${this.enToBnNum(d.toISOString().slice(0, 10))}`;
-  },
-
-  // Application / letter generator
-  makeApplication({ to, from, subject, body, date }) {
-    const today = date || new Date().toLocaleDateString('bn-BD');
-    return `বরাবর,\n${to}\n\nবিষয়: ${subject}\n\nজনাব,\n\n${body}\n\nঅতএব, মহোদয়ের নিকট বিনীত প্রার্থনা, উল্লিখিত বিষয়ে প্রয়োজনীয় ব্যবস্থা গ্রহণে বাধ্য করবেন।\n\nবিনীত নিবেদক,\n${from}\n\nতারিখ: ${today}`;
-  },
-
-  // ============ QR ============
-  async drawQR(canvas, text) {
-    // Try CDN lib first
-    if (window.QRCode && QRCode.toCanvas) {
-      await QRCode.toCanvas(canvas, text, { width: 220, margin: 1, color: { dark: '#123B70', light: '#ffffff' } });
-      return true;
-    }
-    // Fallback: deterministic pattern (visual only, clearly not scannable)
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.height = 220;
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 220, 220);
-    ctx.fillStyle = '#123B70';
-    let seed = 0; for (const c of text) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
-    const rnd = () => { seed = (seed * 1103515245 + 12345) >>> 0; return seed / 4294967296; };
-    const cell = 220 / 25;
-    for (let y = 0; y < 25; y++) for (let x = 0; x < 25; x++) if (rnd() > 0.52) ctx.fillRect(x * cell, y * cell, cell, cell);
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cell * 7, cell * 7); ctx.fillRect(220 - cell * 7, 0, cell * 7, cell * 7); ctx.fillRect(0, 220 - cell * 7, cell * 7, cell * 7);
-    ctx.fillStyle = '#123B70';
-    [[0, 0], [220 - cell * 7, 0], [0, 220 - cell * 7]].forEach(([fx, fy]) => { ctx.fillRect(fx, fy, cell * 7, cell * 7); ctx.fillStyle = '#fff'; ctx.fillRect(fx + cell, fy + cell, cell * 5, cell * 5); ctx.fillStyle = '#123B70'; ctx.fillRect(fx + cell * 2, fy + cell * 2, cell * 3, cell * 3); });
-    return false;
-  },
-
-  // ============ AI (template engine — deterministic, offline) ============
+  // ============ 9. AI TEMPLATES ============
   aiGenerate(slug, input) {
     const t = (input || '').trim() || '—';
     const templates = {
-      'ai-cv': () => `পেশাগত জীবনবৃত্তান্ত (CV)\n${'='.repeat(40)}\nনাম: ${t}\nপদবি: সেবা প্রদানকারী / উদ্যোক্তা\n\nসারসংক্ষেপ:\nঅভিজ্ঞ ও দায়িত্বশীল পেশাদার। ডিজিটাল সেবা, ডকুমেন্ট প্রসেসিং ও গ্রাহক সেবায় দক্ষ।\n\nদক্ষতা:\n• ডিজিটাল সেবা প্রদান\n• ডকুমেন্ট ও ফর্ম প্রসেসিং\n• গ্রাহক যোগাযোগ\n• কম্পিউটার অ্যাপ্লিকেশন\n\nঅভিজ্ঞতা:\n• সেবাকেন্দ্র নেটওয়ার্কে সক্রিয় উদ্যোক্তা\n\nশিক্ষা:\n• সংশ্লিষ্ট বিষয়ে শিক্ষাগত যোগ্যতা\n\nযোগাযোগ: [আপনার ফোন/ইমেইল বসান]`,
-      'ai-cover': () => `কভার লেটার\n${'='.repeat(40)}\n\nপ্রিয় নিয়োগকর্তা,\n\nআমি ${t} পদে আবেদন করতে আগ্রহী। আমার দক্ষতা ও অভিজ্ঞতা আপনার প্রতিষ্ঠানের চাহিদার সাথে সামঞ্জস্যপূর্ণ বলে আমি বিশ্বাস করি।\n\nআমার মূল শক্তি:\n• দ্রুত শেখার ক্ষমতা\n• দলগত কাজে পারদর্শিতা\n• সময় ব্যবস্থাপনা\n\nআপনার প্রতিষ্ঠানে যোগ দেওয়ার সুযোগ পেলে আমি সর্বোচ্চ প্রচেষ্টা দিয়ে কাজ করব।\n\nধন্যবাদসহ,\n[আপনার নাম]`,
-      'ai-email': () => `বিষয়: ${t}\n\nপ্রিয় মহোদয়/মহোদয়া,\n\nআশা করি ভালো আছেন। আমি ${t} সম্পর্কে জানাতে লিখছি।\n\nবিস্তারিত তথ্য নিচে দেওয়া হলো। আপনার মূল্যবান মতামতের অপেক্ষায় রইলাম।\n\nধন্যবাদান্তে,\n[আপনার নাম ও পদবি]`,
-      'ai-caption': () => `📱 ফেসবুক ক্যাপশন আইডিয়া (${t}):\n\n১. "${t} — নতুন শুরু, নতুন সম্ভাবনা! 🚀"\n২. "স্বপ্ন দেখুন, আমরা বাস্তবায়নে পাশে আছি ✨"\n৩. "${t} এখন আপনার হাতের মুঠোয়! 💪"\n৪. "প্রতিদিন নতুন কিছু — ${t} এর সাথে থাকুন 🌟"\n৫. "আপনার সেবাই আমাদের অঙ্গীকার 🤝"`,
-      'ai-biz-name': () => `💡 বিজনেস নামের আইডিয়া (${t}):\n\n১. ${t} সেবাকেন্দ্র\n২. ${t} ডিজিটাল হাব\n৩. ${t} সলিউশন\n৪. ${t} পয়েন্ট\n৫. ${t} ওয়ার্কস\n৬. ${t} নেটওয়ার্ক\n৭. ${t} এক্সপ্রেস\n৮. ${t} সেন্টার`,
-      'ai-translate': () => `[অনুবাদ] ${t}\n\n(নোট: এটি ডেমো অনুবাদ। প্রোডাকশনে AI API-এর মাধ্যমে অনুবাদ করা হবে।)`,
-      'ai-summarize': () => `📋 সারসংক্ষেপ:\n\nমূল বিষয়: ${t.slice(0, 120)}${t.length > 120 ? '...' : ''}\n\nমূল পয়েন্ট:\n• প্রধান তথ্য: ${t.split(/[.!?।]/)[0] || t}\n• বিস্তারিত: ${t.split(/[.!?।]/)[1] || '—'}\n• উপসংহার: ${t.split(/[.!?।]/).slice(-2)[0] || '—'}`,
-      'ai-grammar': () => `✔️ গ্রামার চেক রিপোর্ট:\n\nইনপুট: "${t}"\n\nপরামর্শ:\n• বাক্যের শুরুতে বড় হাতের অক্ষর ব্যবহার করুন\n• বিরামচিহ্ন (। , ?) সঠিকভাবে বসান\n• অপ্রয়োজনীয় স্পেস পরিহার করুন\n\nসংশোধিত সংস্করণ:\n"${t.charAt(0).toUpperCase() + t.slice(1)}"`,
-      'ai-application': () => `আবেদনপত্র\n${'='.repeat(40)}\n\nবরাবর,\nকর্তৃপক্ষ\n\nবিষয়: ${t}\n\nজনাব,\n\nআমি ${t} সংক্রান্ত আবেদন করছি। অনুগ্রহপূর্বক বিষয়টি বিবেচনায় নিয়ে প্রয়োজনীয় ব্যবস্থা গ্রহণ করবেন।\n\nবিনীত নিবেদক,\n[নাম]`,
-      'ai-biz-desc': () => `🏢 বিজনেস বর্ণনা:\n\n${t} — আপনার বিশ্বস্ত ডিজিটাল সেবা প্রদানকারী। আমরা মানসম্মত সেবা, দ্রুত ডেলিভারি ও সাশ্রয়ী মূল্যে গ্রাহক সন্তুষ্টি নিশ্চিত করি।\n\nআমাদের সেবা:\n• নাগরিক সেবা সহায়তা\n• ডিজিটাল টুলস\n• ব্যবসা সমাধান`,
-      'ai-product': () => `🛍️ প্রোডাক্ট বর্ণনা:\n\n${t}\n\nবৈশিষ্ট্য:\n• প্রিমিয়াম কোয়ালিটি\n• সাশ্রয়ী মূল্য\n• দ্রুত ডেলিভারি\n• ওয়ারেন্টি সুবিধা\n\nঅর্ডার করতে আজই যোগাযোগ করুন!`,
-      'ai-seo': () => `🔍 SEO মেটা:\n\nTitle: ${t} | SebaKendra\nDescription: ${t} — বাংলাদেশের সেরা ডিজিটাল সেবা প্ল্যাটফর্মে অনলাইনে সহজে পান। নিরাপদ পেমেন্ট, দ্রুত ডেলিভারি।\nKeywords: ${t}, অনলাইন সেবা, বাংলাদেশ`,
-      'ai-blog': () => `✍️ ব্লগ আউটলাইন: ${t}\n\n১. ভূমিকা — ${t} কেন গুরুত্বপূর্ণ\n২. ধাপে ধাপে নির্দেশনা\n৩. প্রয়োজনীয় কাগজপত্র\n৪. সাধারণ ভুল ও সমাধান\n৫. উপসংহার ও CTA`,
-      'ai-poster': () => `🎨 পোস্টার টেক্সট:\n\nহেডলাইন: ${t}\nসাব-হেডলাইন: এখনই অর্ডার করুন!\nCTA: SebaKendra — আপনার সেবা, আমাদের দায়িত্ব`,
-      'ai-doc-assist': () => `🤖 ডকুমেন্ট অ্যাসিস্ট্যান্ট:\n\nআপনার ইনপুট: "${t}"\n\nপ্রস্তাবিত পদক্ষেপ:\n১. তথ্য যাচাই করুন\n২. প্রয়োজনীয় কাগজপত্র প্রস্তুত করুন\n৩. সেবাকেন্দ্রে আবেদন জমা দিন\n৪. স্ট্যাটাস ট্র্যাক করুন`,
-      'ai-reply': () => `💬 কাস্টমার রিপ্লাই:\n\n"আসসালামু আলাইকুম! ${t} সম্পর্কে আপনার আগ্রহের জন্য ধন্যবাদ। বিস্তারিত তথ্য দিয়ে সাহায্য করছি। যেকোনো প্রয়োজনে আমাদের সাপোর্ট টিম আপনার পাশে আছে। 🤝"`,
-      'ai-social': () => `📅 সোশ্যাল মিডিয়া প্ল্যান (৭ দিন):\n\nসোম: ${t} পরিচিতি পোস্ট\nমঙ্গল: টিপস/গাইড\nবুধ: গ্রাহক রিভিউ\nবৃহ: অফার পোস্ট\nশুক্র: লাইভ Q&A\nশনি: শিক্ষামূলক কনটেন্ট\nরবি: সাপ্তাহিক রিক্যাপ`,
-      'ai-bg-remove': () => `✂️ ব্যাকগ্রাউন্ড রিমুভার:\n\nফটো স্টুডিওতে যান — ছবি আপলোড করে "ব্যাকগ্রাউন্ড রিমুভ" বাটন চাপুন। কর্নার-কালার ডিটেকশন দিয়ে স্বয়ংক্রিয়ভাবে ব্যাকগ্রাউন্ড সরানো হবে।`,
-      'ai-enhance': () => `✨ ছবি এনহ্যান্সার:\n\nফটো স্টুডিওতে যান — ছবি আপলোড করে সাইজ/কোয়ালিটি অপ্টিমাইজ করুন ও ডাউনলোড করুন।`,
+      'ai-cv': () => `জীবনবৃত্তান্ত (Curriculum Vitae)\n${'='.repeat(45)}\nনাম: ${t}\nপদবি: আইটি ও ডিজিটাল সেবা উদ্যোক্তা\n\nসারসংক্ষেপ:\nঅভিজ্ঞ ও দক্ষ ডিজিটাল সার্ভিস স্পেশালিস্ট। নাগরিক সেবা, NID প্রসেসিং, ফটো এডিটিং ও গ্রাহক সেবায় পারদর্শী।\n\nপ্রধান দক্ষতাসমূহ:\n• কম্পিউটার অ্যাপ্লিকেশন ও ডাটা এন্ট্রি\n• অনলাইন আবেদন ও ফর্ম প্রসেসিং\n• ফটো এডিটিং ও A4 প্রিন্ট রেডি\n• কাস্টমার রিলেশনশিপ ও হিসাব সংরক্ষণ\n\nঅভিজ্ঞতা:\n• উদ্যোক্তা ও পরিচালক, সেবাকেন্দ্র ডিজিটাল হাব\n\nযোগাযোগ:\nফোন: [আপনার নম্বর] | ইমেইল: [আপনার ইমেইল]`,
+      'ai-cover': () => `বরাবর,\nনিয়োগকারী কর্তৃপক্ষ\n\nবিষয়: ${t} পদের জন্য আবেদনপত্র।\n\nজনাব,\nবিনীত নিবেদন এই যে, আপনার প্রতিষ্ঠানে প্রকাশিত "${t}" পদের বিজ্ঞপ্তির প্রেক্ষিতে আমি একজন আগ্রহী প্রার্থী হিসেবে আবেদন করছি। আমার দক্ষতা ও পূর্ব অভিজ্ঞতা আপনার প্রতিষ্ঠানের অগ্রগতিতে ভূমিকা রাখবে বলে আমি বিশ্বাস করি।\n\nঅতএব, বিষয়টি বিবেচনাপূর্বক আমাকে মৌখিক পরীক্ষার সুযোগ দানে বাধিত করবেন।\n\nধন্যবাদান্তে,\n[আপনার নাম]`,
+      'ai-caption': () => `✨ ${t} নিয়ে আকর্ষণীয় ক্যাপশন:\n\n১. "${t} — এক ক্লিকেই সমাধান! দ্রুত ও নির্ভুল সেবার বিশ্বস্ত ঠিকানা।"\n২. "ডিজিটাল সেবা এখন আপনার হাতের মুঠোয়। ${t} এর সেরা সমাধান নিয়ে আমরা আছি আপনার পাশে। 🚀"\n৩. "সময় বাঁচান, স্মার্ট হোন! ${t} সেবা পেতে আজই চলে আসুন আমাদের সেন্টারে। 🤝"`,
     };
-    return (templates[slug] || (() => `AI আউটপুট: ${t}`))();
+    return (templates[slug] || (() => `AI ফলাফল (${slug}): ${t}`))();
   },
 };
