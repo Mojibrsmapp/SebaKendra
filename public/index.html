@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SebaKendra — এক প্ল্যাটফর্মে নাগরিক সেবা, ডিজিটাল টুলস ও ব্যবসার সমাধান</title>
+<meta name="description" content="SebaKendra - Your Complete Digital Service & Business Platform. নাগরিক সেবা, ডিজিটাল টুলস, AI টুলস, ব্যবসা সফটওয়্যার ও উদ্যোক্তা নেটওয়ার্ক — সব এক প্ল্যাটফর্মে।">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23123B70'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>সে</text></svg>">
+</head>
+<body>
+<div id="announce" class="announce">
+  <span>🎉 নতুন: AI টুলস হাব ও ফটো স্টুডিও চালু হয়েছে — প্রথম ৫টি টুল সম্পূর্ণ ফ্রি!</span>
+  <button class="announce-close" onclick="document.getElementById('announce').remove()" aria-label="Close">✕</button>
+</div>
+<header class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="#/" class="logo">
+      <span class="logo-mark">সে</span>
+      <span class="logo-text">Seba<b>Kendra</b><small>সেবাকেন্দ্র</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#/services">সেবাসমূহ</a>
+      <a href="#/tools">ডিজিটাল টুলস</a>
+      <a href="#/ai-tools">AI টুলস</a>
+      <a href="#/business">ব্যবসা</a>
+      <a href="#/jobs">চাকরি</a>
+      <a href="#/learn">শিক্ষা</a>
+      <a href="#/centers">সেন্টার</a>
+      <a href="#/pricing">প্রাইসিং</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="searchBtn" title="সার্চ">🔍</button>
+      <button class="icon-btn" id="themeBtn" title="ডার্ক মোড">🌙</button>
+      <a href="#/dashboard" class="icon-btn" id="dashBtn" title="ড্যাশবোর্ড" style="display:none">👤</a>
+      <a href="#/login" class="btn btn-outline btn-sm" id="loginBtn">লগইন</a>
+      <a href="#/register" class="btn btn-primary btn-sm" id="regBtn">রেজিস্টার</a>
+      <button class="icon-btn hamburger" id="menuBtn">☰</button>
+    </div>
+  </div>
+  <div class="search-bar" id="searchBar" style="display:none">
+    <div class="container">
+      <input type="text" id="globalSearch" placeholder="সার্ভিস, টুল বা কোর্স খুঁজুন... (যেমন: পাসপোর্ট, PDF, CV)">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+  </div>
+</header>
+<main id="app"></main>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <div class="logo"><span class="logo-mark">সে</span><span class="logo-text">Seba<b>Kendra</b><small>সেবাকেন্দ্র</small></span></div>
+      <p>এক প্ল্যাটফর্মে নাগরিক সেবা, ডিজিটাল টুলস ও ব্যবসার সমাধান।<br>Your Complete Digital Service &amp; Business Platform.</p>
+      <p class="muted small">সরকারি সেবা সংশ্লিষ্ট সরকারি পোর্টাল/কর্তৃপক্ষই ইস্যু করে — SebaKendra অনুমোদিত সহায়তা ও প্রসেসিং প্ল্যাটফর্ম।</p>
+    </div>
+    <div><h4>প্ল্যাটফর্ম</h4><a href="#/services">নাগরিক সেবা</a><a href="#/tools">ডিজিটাল টুলস</a><a href="#/ai-tools">AI টুলস</a><a href="#/business">ব্যবসা SaaS</a><a href="#/pricing">প্রাইসিং</a></div>
+    <div><h4>পার্টনার</h4><a href="#/entrepreneur">উদ্যোক্তা নেটওয়ার্ক</a><a href="#/centers">সেন্টার খুঁজুন</a><a href="#/learn">প্রশিক্ষণ</a><a href="#/developers">ডেভেলপার API</a><a href="#/verify">ভেরিফিকেশন</a></div>
+    <div><h4>সহায়তা</h4><a href="#/help">FAQ ও হেল্প</a><a href="#/blog">ব্লগ</a><a href="#/about">আমাদের সম্পর্কে</a><a href="#/contact">যোগাযোগ</a><a href="#/privacy">প্রাইভেসি</a><a href="#/terms">শর্তাবলী</a></div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© ২০২৬ SebaKendra. সর্বস্বত্ব সংরক্ষিত।</span>
+    <span>🔒 নিরাপদ পেমেন্ট: bKash • Nagad • Rocket (অনুমোদিত ইন্টিগ্রেশন)</span>
+  </div>
+</footer>
+<div id="toastWrap"></div>
+<div id="modalWrap"></div>
+<script src="/js/data.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/tools.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
