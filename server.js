@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4001;
 const HOST = '0.0.0.0';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 

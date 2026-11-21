@@ -151,11 +151,11 @@ SebaKendra/
 # ডিপেনডেন্সি (Zero-dependency Node.js)
 node server.js
 ```
-ব্রাউজারে খুলুন: `http://localhost:3000`
+ব্রাউজারে খুলুন: `http://localhost:4001`
 
 ### এনভায়রনমেন্ট ভেরিয়েবল (বিকাশ প্রোডাকশন মোডের জন্য):
 ```env
-PORT=3000
+PORT=4001
 APP_ENV=production
 BKASH_MODE=live
 BKASH_APP_KEY=your_official_app_key
