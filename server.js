@@ -1,35 +1,92 @@
-// SebaKendra - Modular Monolith Server (Node.js runtime)
-// Mirrors the Laravel modular architecture from the blueprint:
-//   Modules: Auth, Users, CitizenServices, Orders, Payments(bKash), Wallet,
-//            Finance, Commission, DigitalTools, PhotoStudio, PDFTools,
-//            AITools, BusinessSaaS, SMS, Subscriptions, Affiliate, Support,
-//            Training, API, Notifications, Analytics
-// In production this maps 1:1 to Laravel modules under app/Modules/*.
-// This server serves the public/ SPA and exposes the API surface used by
-// the frontend (health, config, payment verification stub for sandbox).
+// SebaKendra - Modular Monolith Server (Node.js runtime + MySQL)
+// Database: seba_kendra | User: seba_kendra | Password: seba_kendra
+// Fallback: in-memory sandbox ledger when MySQL is unavailable
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+let mysql = null;
+try { mysql = require('mysql2/promise'); } catch (e) { mysql = null; }
 
 const PORT = process.env.PORT || 4001;
 const HOST = '0.0.0.0';
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// ---- Database Configuration ----
+const DB_CONFIG = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'seba_kendra',
+  password: process.env.DB_PASSWORD || 'seba_kendra',
+  database: process.env.DB_NAME || 'seba_kendra',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+};
+
+let dbPool = null;
+let dbAvailable = false;
+
+async function initDatabase() {
+  if (!mysql) {
+    console.log('[DB] mysql2 driver not available, using in-memory mode');
+    return;
+  }
+  try {
+    dbPool = mysql.createPool(DB_CONFIG);
+    const conn = await dbPool.getConnection();
+    await conn.ping();
+    conn.release();
+    dbAvailable = true;
+    console.log('[DB] Connected to MySQL database:', DB_CONFIG.database);
+
+    // Auto-create core tables if not exist
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id VARCHAR(50) PRIMARY KEY,
+        service_slug VARCHAR(100) NOT NULL,
+        service_name VARCHAR(255) NOT NULL,
+        fee DECIMAL(10,2) NOT NULL,
+        customer_name VARCHAR(150),
+        customer_phone VARCHAR(30),
+        status VARCHAR(50) DEFAULT 'processing',
+        payment_id VARCHAR(100),
+        trx_id VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        payment_id VARCHAR(100) PRIMARY KEY,
+        amount DECIMAL(10,2) NOT NULL,
+        trx_id VARCHAR(100),
+        purpose VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        executed_at TIMESTAMP NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+  } catch (err) {
+    console.warn('[DB] MySQL connection notice:', err.message);
+    console.warn('[DB] Operating in resilient memory mode (will auto-reconnect if MySQL starts)');
+    dbAvailable = false;
+  }
+}
+
+initDatabase();
 
 // ---- Config (env-driven; secrets never shipped to frontend) ----
 const CONFIG = {
   appName: 'SebaKendra',
   env: process.env.APP_ENV || 'local',
   bkash: {
-    mode: process.env.BKASH_MODE || 'sandbox', // sandbox | live
-    // Credentials come from server env only. Never expose in client code.
+    mode: process.env.BKASH_MODE || 'sandbox',
     appKey: process.env.BKASH_APP_KEY || '',
     appSecret: process.env.BKASH_APP_SECRET || '',
     username: process.env.BKASH_USERNAME || '',
     password: process.env.BKASH_PASSWORD || '',
   },
-  // In-memory sandbox payment ledger (production: MySQL `payments` table).
   sandboxPayments: new Map(),
 };
 
@@ -44,7 +101,8 @@ const MIME = {
 };
 
 function send(res, status, body, type = 'application/json') {
-  const data = (Buffer.isBuffer(body) || typeof body === 'string') ? body : JSON.stringify(body);
+  const isBinaryOrString = Buffer.isBuffer(body) || typeof body === 'string';
+  const data = isBinaryOrString ? body : JSON.stringify(body);
   res.writeHead(status, {
     'Content-Type': type,
     'Cache-Control': type.includes('html') ? 'no-cache' : 'public, max-age=3600',
@@ -63,11 +121,8 @@ function readBody(req) {
   });
 }
 
-// ---- bKash Payment Module (sandbox implementation of the blueprint flow) ----
-// Flow: Create Payment -> Hosted Checkout -> Execute/Query (server-side verify)
-// Rule: an order is NEVER marked paid from a frontend redirect alone.
-// Rule: customer bKash PIN / OTP is NEVER collected or stored.
-function bkashCreatePayment({ amount, invoice, purpose, serviceSlug, serviceName, customerName, customerPhone }) {
+// ---- bKash Payment Module ----
+async function bkashCreatePayment({ amount, invoice, purpose, serviceSlug, serviceName, customerName, customerPhone }) {
   const paymentID = 'SBK' + crypto.randomBytes(8).toString('hex').toUpperCase();
   const record = {
     paymentID,
@@ -84,18 +139,38 @@ function bkashCreatePayment({ amount, invoice, purpose, serviceSlug, serviceName
     trxID: null,
   };
   CONFIG.sandboxPayments.set(paymentID, record);
+
+  if (dbAvailable && dbPool) {
+    try {
+      await dbPool.query(
+        'INSERT INTO payments (payment_id, amount, purpose, status) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount=VALUES(amount)',
+        [paymentID, record.amount, record.purpose, 'pending']
+      );
+    } catch (e) { console.error('[DB Insert Error]', e.message); }
+  }
+
   return record;
 }
 
-function bkashExecutePayment(paymentID) {
+async function bkashExecutePayment(paymentID) {
   const rec = CONFIG.sandboxPayments.get(paymentID);
   if (!rec) return { ok: false, success: false, error: 'Payment not found' };
-  if (rec.status === 'completed') return { ok: true, success: true, ...rec, duplicate: true }; // idempotent
+  if (rec.status === 'completed') return { ok: true, success: true, ...rec, duplicate: true };
   if (rec.status === 'expired') return { ok: false, success: false, error: 'Payment expired' };
-  // Server-side verification (production: call bKash Execute/Query API here)
+
   rec.status = 'completed';
   rec.trxID = 'TRX' + crypto.randomBytes(6).toString('hex').toUpperCase();
   rec.executedAt = new Date().toISOString();
+
+  if (dbAvailable && dbPool) {
+    try {
+      await dbPool.query(
+        'UPDATE payments SET status = ?, trx_id = ?, executed_at = NOW() WHERE payment_id = ?',
+        ['completed', rec.trxID, paymentID]
+      );
+    } catch (e) { console.error('[DB Update Error]', e.message); }
+  }
+
   return { ok: true, success: true, ...rec };
 }
 
@@ -105,21 +180,32 @@ const server = http.createServer(async (req, res) => {
 
   // ---------- API ----------
   if (pathname === '/api/health') {
-    return send(res, 200, { status: 'ok', app: CONFIG.appName, env: CONFIG.env, time: new Date().toISOString() });
+    return send(res, 200, {
+      status: 'ok',
+      app: CONFIG.appName,
+      env: CONFIG.env,
+      mysql: dbAvailable ? 'connected' : 'memory-fallback',
+      db: DB_CONFIG.database,
+      time: new Date().toISOString(),
+    });
   }
   if (pathname === '/api/config') {
-    // Safe public config only (no secrets)
-    return send(res, 200, { appName: CONFIG.appName, bkashMode: CONFIG.bkash.mode, currency: 'BDT' });
+    return send(res, 200, {
+      appName: CONFIG.appName,
+      bkashMode: CONFIG.bkash.mode,
+      currency: 'BDT',
+      mysql: dbAvailable,
+    });
   }
   if (pathname === '/api/payments/create' && req.method === 'POST') {
     const body = await readBody(req);
     if (!body.amount || Number(body.amount) <= 0) return send(res, 422, { ok: false, success: false, error: 'Invalid amount' });
-    const rec = bkashCreatePayment(body);
+    const rec = await bkashCreatePayment(body);
     return send(res, 201, { ok: true, success: true, paymentID: rec.paymentID, amount: rec.amount, mode: rec.mode, status: rec.status });
   }
   if (pathname === '/api/payments/execute' && req.method === 'POST') {
     const body = await readBody(req);
-    const result = bkashExecutePayment(body.paymentID);
+    const result = await bkashExecutePayment(body.paymentID);
     return send(res, result.ok ? 200 : 404, result);
   }
   if (pathname.startsWith('/api/payments/') && req.method === 'GET') {
@@ -148,7 +234,6 @@ const server = http.createServer(async (req, res) => {
         send(res, 200, data, MIME[path.extname(filePath)] || 'application/octet-stream');
       });
     } else {
-      // SPA route -> index.html
       fs.readFile(path.join(PUBLIC_DIR, 'index.html'), (e, data) => {
         if (e) return send(res, 500, 'Server error', 'text/plain');
         send(res, 200, data, MIME['.html']);

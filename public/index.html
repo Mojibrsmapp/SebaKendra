@@ -1,75 +1,132 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SebaKendra — এক প্ল্যাটফর্মে নাগরিক সেবা, ডিজিটাল টুলস ও ব্যবসার সমাধান</title>
-<meta name="description" content="SebaKendra - Your Complete Digital Service & Business Platform. নাগরিক সেবা, ডিজিটাল টুলস, AI টুলস, ব্যবসা সফটওয়্যার ও উদ্যোক্তা নেটওয়ার্ক — সব এক প্ল্যাটফর্মে।">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23123B70'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>সে</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SebaKendra — দেশের সেরা প্ল্যাটফর্ম নাগরিক সেবা ও আইটি ইনফরমেশন এর জন্য</title>
+  <meta name="description" content="SebaKendra — চাকরি, ভর্তি, NID প্রিন্ট রেডি, যৌথ ছবি, ফটো স্টুডিও, সি ভি অটো ফিল, অনলাইন টুলস এবং দৈনন্দিন কাজের সকল গুরুত্বপূর্ণ লিংকের বিশ্বস্ত সমাধান।">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F9D58'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>সে</text></svg>">
 </head>
 <body>
-<div id="announce" class="announce">
-  <span>🎉 নতুন: AI টুলস হাব ও ফটো স্টুডিও চালু হয়েছে — প্রথম ৫টি টুল সম্পূর্ণ ফ্রি!</span>
-  <button class="announce-close" onclick="document.getElementById('announce').remove()" aria-label="Close">✕</button>
-</div>
-<header class="navbar" id="navbar">
-  <div class="container nav-inner">
-    <a href="#/" class="logo">
-      <span class="logo-mark">সে</span>
-      <span class="logo-text">Seba<b>Kendra</b><small>সেবাকেন্দ্র</small></span>
-    </a>
-    <nav class="nav-links" id="navLinks">
-      <a href="#/services">সেবাসমূহ</a>
-      <a href="#/tools">ডিজিটাল টুলস</a>
-      <a href="#/ai-tools">AI টুলস</a>
-      <a href="#/business">ব্যবসা</a>
-      <a href="#/jobs">চাকরি</a>
-      <a href="#/learn">শিক্ষা</a>
-      <a href="#/centers">সেন্টার</a>
-      <a href="#/pricing">প্রাইসিং</a>
-    </nav>
-    <div class="nav-actions">
-      <button class="icon-btn" id="searchBtn" title="সার্চ">🔍</button>
-      <button class="icon-btn" id="themeBtn" title="ডার্ক মোড">🌙</button>
-      <a href="#/dashboard" class="icon-btn" id="dashBtn" title="ড্যাশবোর্ড" style="display:none">👤</a>
-      <a href="#/login" class="btn btn-outline btn-sm" id="loginBtn">লগইন</a>
-      <a href="#/register" class="btn btn-primary btn-sm" id="regBtn">রেজিস্টার</a>
-      <button class="icon-btn hamburger" id="menuBtn">☰</button>
+
+  <!-- Top Announcement Bar (IT Lancer style) -->
+  <div class="top-bar">
+    <div class="container flex justify-between items-center w-full">
+      <div class="top-bar-notice">
+        <span class="top-bar-pill">📢 আপডেট</span>
+        <span>নতুন আপডেট: NID Print Ready টুলসে এখন যুক্ত হলো "ম্যানুয়াল ক্রপ" সুবিধা! ফ্রন্ট ও ব্যাক সাইড নিজের মতো নিখুঁতভাবে ক্রপ করে মাত্র ১০ সেকেন্ডে NID প্রিন্ট রেডি করুন।</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/packages" class="text-xs text-white" style="text-decoration:underline;">প্যাকেজ অফার</a>
+      </div>
     </div>
   </div>
-  <div class="search-bar" id="searchBar" style="display:none">
-    <div class="container">
-      <input type="text" id="globalSearch" placeholder="সার্ভিস, টুল বা কোর্স খুঁজুন... (যেমন: পাসপোর্ট, PDF, CV)">
-      <div id="searchResults" class="search-results"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="brand">
+        <div class="brand-icon">সে</div>
+        <div>
+          <span>SebaKendra</span>
+          <span class="brand-sub">আইটি তথ্য ও স্মার্ট অনলাইন টুলস</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link active">হোম</a></li>
+
+        <!-- Mega Dropdown for Tools (IT Lancer style) -->
+        <li class="nav-dropdown">
+          <a href="/tools" class="nav-link">
+            <span>টুলস</span>
+            <span style="font-size:0.7rem">▾</span>
+          </a>
+          <div class="nav-dropdown-menu">
+            <div>
+              <div class="mega-col-head">📸 ছবি ও প্রিন্টিং</div>
+              <a href="/tools/photo-studio" class="mega-item">
+                <span class="mega-item-title">Photo Studio AI</span>
+                <span class="mega-item-desc">স্মার্ট ফটো ক্রপ ও পাসপোর্ট সাইজ</span>
+              </a>
+              <a href="/tools/joint-photo" class="mega-item">
+                <span class="mega-item-title">যৌথ ছবি (Joint Photo)</span>
+                <span class="mega-item-desc">পাশাপাশি দুই ব্যক্তির যৌথ ছবি</span>
+              </a>
+              <a href="/tools/nid-print-ready" class="mega-item">
+                <span class="mega-item-title">NID প্রিন্ট রেডি</span>
+                <span class="mega-item-desc">মোবাইলে তোলা NID কার্ড প্রিন্ট রেডি</span>
+              </a>
+              <a href="/tools/a4-print-ready" class="mega-item">
+                <span class="mega-item-title">A4 প্রিন্ট রেডি</span>
+                <span class="mega-item-desc">এক ক্লিকে ৪, ৮, ১২, ২৪ কপি শিট</span>
+              </a>
+            </div>
+
+            <div>
+              <div class="mega-col-head">💼 চাকরি, CV ও ভর্তি</div>
+              <a href="/jobs" class="mega-item">
+                <span class="mega-item-title">চলমান চাকরি (Jobs)</span>
+                <span class="mega-item-desc">সকল সরকারি ও ব্যাংক চাকরির সার্কুলার</span>
+              </a>
+              <a href="/tools/cv-auto-fill" class="mega-item">
+                <span class="mega-item-title">সিভি অটোফিল</span>
+                <span class="mega-item-desc">ক্লিক করলেই প্রফেশনাল জীবনবৃত্তান্ত</span>
+              </a>
+              <a href="/services" class="mega-item">
+                <span class="mega-item-title">নাগরিক সেবা ক্যাটালগ</span>
+                <span class="mega-item-desc">৩০টি নাগরিক ও সনদ আবেদন সহায়তা</span>
+              </a>
+            </div>
+
+            <div>
+              <div class="mega-col-head">⚡ দ্রুত প্রয়োজনীয় লিংক ও ব্যবসা</div>
+              <a href="/links" class="mega-item">
+                <span class="mega-item-title">গুরুত্বপূর্ণ লিংকসমূহ (১১৪+)</span>
+                <span class="mega-item-desc">সরকারি সকল অফিশিয়াল পোর্টাল</span>
+              </a>
+              <a href="/tools/make-voter-slip" class="mega-item">
+                <span class="mega-item-title">ভোটার স্লিপ তৈরি</span>
+                <span class="mega-item-desc">QR কোড সহ ভোটার স্লিপ প্রিন্ট</span>
+              </a>
+              <a href="/business" class="mega-item">
+                <span class="mega-item-title">অটো ইনভয়েস ও POS</span>
+                <span class="mega-item-desc">ক্যাশ মেমো ও দোকানের দৈনিক হিসাব</span>
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li><a href="/services" class="nav-link">নাগরিক সেবা</a></li>
+        <li><a href="/packages" class="nav-link">প্যাকেজ কিনুন</a></li>
+        <li><a href="/ai-coins" class="nav-link">AI কয়েন কিনুন</a></li>
+        <li><a href="/premium" class="nav-link" style="color:var(--amber);font-weight:700">প্রিমিয়াম 👑</a></li>
+      </ul>
+
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" class="btn btn-ghost btn-sm" title="থিম পরিবর্তন" aria-label="Toggle theme">🌙</button>
+        <div id="userNavArea" class="flex items-center gap-2">
+          <!-- Auth buttons dynamically rendered -->
+        </div>
+      </div>
     </div>
-  </div>
-</header>
-<main id="app"></main>
-<footer class="footer">
-  <div class="container footer-grid">
-    <div>
-      <div class="logo"><span class="logo-mark">সে</span><span class="logo-text">Seba<b>Kendra</b><small>সেবাকেন্দ্র</small></span></div>
-      <p>এক প্ল্যাটফর্মে নাগরিক সেবা, ডিজিটাল টুলস ও ব্যবসার সমাধান।<br>Your Complete Digital Service &amp; Business Platform.</p>
-      <p class="muted small">সরকারি সেবা সংশ্লিষ্ট সরকারি পোর্টাল/কর্তৃপক্ষই ইস্যু করে — SebaKendra অনুমোদিত সহায়তা ও প্রসেসিং প্ল্যাটফর্ম।</p>
-    </div>
-    <div><h4>প্ল্যাটফর্ম</h4><a href="#/services">নাগরিক সেবা</a><a href="#/tools">ডিজিটাল টুলস</a><a href="#/ai-tools">AI টুলস</a><a href="#/business">ব্যবসা SaaS</a><a href="#/pricing">প্রাইসিং</a></div>
-    <div><h4>পার্টনার</h4><a href="#/entrepreneur">উদ্যোক্তা নেটওয়ার্ক</a><a href="#/centers">সেন্টার খুঁজুন</a><a href="#/learn">প্রশিক্ষণ</a><a href="#/developers">ডেভেলপার API</a><a href="#/verify">ভেরিফিকেশন</a></div>
-    <div><h4>সহায়তা</h4><a href="#/help">FAQ ও হেল্প</a><a href="#/blog">ব্লগ</a><a href="#/about">আমাদের সম্পর্কে</a><a href="#/contact">যোগাযোগ</a><a href="#/privacy">প্রাইভেসি</a><a href="#/terms">শর্তাবলী</a></div>
-  </div>
-  <div class="container footer-bottom">
-    <span>© ২০২৬ SebaKendra. সর্বস্বত্ব সংরক্ষিত।</span>
-    <span>🔒 নিরাপদ পেমেন্ট: bKash • Nagad • Rocket (অনুমোদিত ইন্টিগ্রেশন)</span>
-  </div>
-</footer>
-<div id="toastWrap"></div>
-<div id="modalWrap"></div>
-<script src="/js/data.js"></script>
-<script src="/js/store.js"></script>
-<script src="/js/tools.js"></script>
-<script src="/js/app.js"></script>
+  </nav>
+
+  <!-- Main View Slot -->
+  <main id="app"></main>
+
+  <!-- Modals & Toasts Container -->
+  <div id="modalWrap"></div>
+  <div id="toastWrap" class="toast-wrap"></div>
+
+  <!-- Scripts -->
+  <script src="/js/data.js"></script>
+  <script src="/js/store.js"></script>
+  <script src="/js/tools.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>
