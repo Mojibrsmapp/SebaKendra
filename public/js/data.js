@@ -33,8 +33,9 @@ const NAV_TOOL_CATEGORIES = [
     id: 'design_doc',
     title: 'ডিজাইন ও ডকুমেন্ট',
     en: 'Design & Documents',
-    count: 5,
+    count: 6,
     tools: [
+      { slug: 'udyog', name: 'UDYOG Form', bn: 'উদ্যোগ (UDYOG) আবেদন ফরম', desc: 'বাংলাদেশ ব্যাংক তরুণ উদ্যোক্তা অর্থায়ন ফরম ও প্রিন্ট' },
       { slug: 'cv-format', name: 'CV Format', bn: 'সিভি', desc: 'ওয়ার্ড ও পিডিএফ ফরম্যাট ডাউনলোড' },
       { slug: 'graphics-format', name: 'Graphics Format', bn: 'গ্রাফিক্স ফরমেট', desc: 'PSD ও ব্যানার ডিজাইন টেমপ্লেট' },
       { slug: 'certificate-format', name: 'Certificate Format', bn: 'সনদ ফরমেট', desc: 'প্রত্যয়নপত্র ও সার্টিফিকেট খসড়া' },
