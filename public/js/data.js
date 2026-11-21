@@ -1,5 +1,5 @@
-// SebaKendra Data Catalogue — Aligned with IT Lancer BD & Blueprint
-// Contains: Navigation Mega-Tools, Jobs, 114+ Important Links, Services, Members, Plans
+// SebaKendra Data Catalogue
+// Includes: Navigation Mega-Tools, Jobs, 114+ Important Links, Services, Members, 4 Official Packages
 
 const NAV_TOOL_CATEGORIES = [
   {
@@ -7,9 +7,8 @@ const NAV_TOOL_CATEGORIES = [
     title: 'ছবি ও প্রিন্টিং',
     en: 'Photo & Print',
     count: 6,
-    icon: '📸',
     tools: [
-      { slug: 'ai-photo-studio', name: 'Photo Studio AI', bn: 'এআই ফটো স্টুডিও', desc: 'স্মার্ট ফটো এডিটিং ও ব্যাকগ্রাউন্ড' },
+      { slug: 'ai-photo-studio', name: 'Photo Studio AI', bn: 'Photo Studio AI', desc: 'স্মার্ট ফটো এডিটিং ও ব্যাকগ্রাউন্ড' },
       { slug: 'photo-studio', name: 'Photo Studio', bn: 'ফটো স্টুডিও', desc: 'পাসপোর্ট, ভিসা ও আইডি সাইজ ক্রপ' },
       { slug: 'joint-photo', name: 'Joint Photo', bn: 'যৌথ ছবি', desc: 'দুই ব্যক্তির ছবি পাশাপাশি যুক্ত করুন' },
       { slug: 'nid-print-ready', name: 'NID Print Ready', bn: 'NID প্রিন্ট রেডি', desc: 'মোবাইলে তোলা NID ৫ মিনিটে প্রিন্ট সাইজ' },
@@ -22,13 +21,12 @@ const NAV_TOOL_CATEGORIES = [
     title: 'চাকরি, CV ও ভর্তি',
     en: 'Career & Education',
     count: 5,
-    icon: '💼',
     tools: [
-      { slug: 'jobs', name: 'Jobs', bn: 'চলমান চাকরি', desc: 'সরকারি ও বেসরকারি চাকরির সার্কুলার' },
+      { slug: 'jobs', name: 'Jobs', bn: 'চাকরি', desc: 'সকল সরকারি ও ব্যাংক চাকরির সার্কুলার' },
       { slug: 'job-autofill', name: 'Job Autofill', bn: 'জবস্ অটো ফিল', desc: 'টেলিটক ও সরকারি চাকরির তথ্য পূরণ' },
       { slug: 'my-job-ads', name: 'My Job Ads', bn: 'আমার বিজ্ঞাপন', desc: 'বিজ্ঞাপন ও আবেদন ট্র্যাকিং' },
       { slug: 'cv-auto-fill', name: 'CV Autofill', bn: 'সিভি অটোফিল', desc: 'মিনিটেই পেশাদার জীবনবৃত্তান্ত' },
-      { slug: 'admission', name: 'Admission', bn: 'ভর্তি তথ্য', desc: 'বিশ্ববিদ্যালয় ও কলেজ ভর্তি গাইড' },
+      { slug: 'admission', name: 'Admission', bn: 'ভর্তি', desc: 'বিশ্ববিদ্যালয় ও কলেজ ভর্তি গাইড' },
     ],
   },
   {
@@ -36,13 +34,12 @@ const NAV_TOOL_CATEGORIES = [
     title: 'ডিজাইন ও ডকুমেন্ট',
     en: 'Design & Documents',
     count: 5,
-    icon: '📄',
     tools: [
-      { slug: 'cv-format', name: 'CV Format', bn: 'সিভি ফরম্যাট', desc: 'ওয়ার্ড ও পিডিএফ ফরম্যাট ডাউনলোড' },
-      { slug: 'graphics-format', name: 'Graphics Format', bn: 'গ্রাফিক্স ফরম্যাট', desc: 'PSD ও ব্যানার ডিজাইন টেমপ্লেট' },
-      { slug: 'certificate-format', name: 'Certificate Format', bn: 'সনদ ফরম্যাট', desc: 'প্রত্যয়নপত্র ও সার্টিফিকেট খসড়া' },
+      { slug: 'cv-format', name: 'CV Format', bn: 'সিভি', desc: 'ওয়ার্ড ও পিডিএফ ফরম্যাট ডাউনলোড' },
+      { slug: 'graphics-format', name: 'Graphics Format', bn: 'গ্রাফিক্স ফরমেট', desc: 'PSD ও ব্যানার ডিজাইন টেমপ্লেট' },
+      { slug: 'certificate-format', name: 'Certificate Format', bn: 'সনদ ফরমেট', desc: 'প্রত্যয়নপত্র ও সার্টিফিকেট খসড়া' },
       { slug: 'pdf-studio', name: 'PDF Studio', bn: 'পিডিএফ স্টুডিও', desc: 'টেক্সট টু PDF ও ফাইল রূপান্তর' },
-      { slug: 'any-to-word', name: 'Any to Word', bn: 'এনি টু ওয়ার্ড', desc: 'ডকুমেন্ট ওয়ার্ড ফাইলে রূপান্তর' },
+      { slug: 'any-to-word', name: 'Any to Word', bn: 'এনি টু ওয়ার্ড', desc: 'ডকুমেন্ট ওয়ার্ড ফাইলে রূপান্তর' },
     ],
   },
   {
@@ -50,12 +47,11 @@ const NAV_TOOL_CATEGORIES = [
     title: 'দৈনন্দিন ও ব্যবসায়িক',
     en: 'Business & Daily',
     count: 4,
-    icon: '🏪',
     tools: [
-      { slug: 'auto-invoice', name: 'Auto Invoice', bn: 'অটো ইনভয়েস', desc: 'ক্যাশ মেমো ও বিল প্রিন্ট' },
+      { slug: 'auto-invoice', name: 'Auto Invoice', bn: 'অটো ইনভয়েস', desc: 'ক্যাশ মেমো ও বিল প্রিন্ট' },
       { slug: 'it-hisab', name: 'IT Hisab', bn: 'আইটি হিসাব', desc: 'দৈনিক সেলস ও খরচ ক্যালকুলেটর' },
       { slug: 'todo', name: 'Todo List', bn: 'মনে রাখুন', desc: 'দোকান ও গ্রাহকের কাজের তালিকা' },
-      { slug: 'software', name: 'Software', bn: 'সফটওয়্যার', desc: 'প্রয়োজনীয় ড্রাইভার ও ইউটিলিটি' },
+      { slug: 'software', name: 'Software', bn: 'সফটওয়্যার', desc: 'প্রয়োজনীয় ড্রাইভার ও ইউটিলিটি' },
     ],
   },
   {
@@ -63,12 +59,11 @@ const NAV_TOOL_CATEGORIES = [
     title: 'দ্রুত প্রয়োজনীয় লিংক',
     en: 'Quick Access',
     count: 4,
-    icon: '⚡',
     tools: [
-      { slug: 'image-resizer', name: 'Image Resizer', bn: 'ইমেজ রিসাইজার ও ক্রপ', desc: 'KB সাইজ ও পিক্সেল রিসাইজ' },
+      { slug: 'image-resizer', name: 'Image Resizer & Crop', bn: 'ইমেজ রিসাইজার', desc: 'KB সাইজ ও পিক্সেল রিসাইজ' },
       { slug: 'make-voter-slip', name: 'Voter Slip', bn: 'ভোটার স্লিপ তৈরি', desc: 'QR কোড সহ ভোটার স্লিপ প্রিন্ট' },
-      { slug: 'ai-prompt', name: 'AI Prompt', bn: 'এআই প্রম্পট হাব', desc: 'রেডিমেড প্রম্পট ও কনটেন্ট জেনারেটর' },
-      { slug: 'links', name: 'Important Links', bn: 'গুরুত্বপূর্ণ লিংক (১১৪+)', desc: 'সরকারি ও অফিশিয়াল লিংক ডিরেক্টরি' },
+      { slug: 'ai-prompt', name: 'AI Prompt', bn: 'এআই প্রম্পট', desc: 'রেডিমেড প্রম্পট ও কনটেন্ট জেনারেটর' },
+      { slug: 'links', name: 'Important Links', bn: 'গুরুত্বপূর্ণ লিংক', desc: 'সরকারি ও অফিশিয়াল লিংক ডিরেক্টরি' },
     ],
   },
 ];
@@ -173,7 +168,7 @@ const JOB_CIRCULARS = [
   },
 ];
 
-// 114+ Categorized Official Links matching IT Lancer BD directory
+// 114+ Categorized Official Links
 const IMPORTANT_LINK_CATEGORIES = [
   { id: 'all', name: 'সবগুলো', count: 114 },
   { id: 'nid', name: 'জাতীয় পরিচয় পত্র', count: 3 },
@@ -308,7 +303,7 @@ const IMPORTANT_LINKS = [
   },
 ];
 
-// IT Shop Members list matching IT Lancer BD member list
+// IT Shop Members list
 const MEMBERS = [
   { username: 'Mahfuz59', name: 'Mahfuz59', location: 'Haripur', badge: 'PRO' },
   { username: 'akislam500', name: 'akislam500', location: 'Tala', badge: 'MEMBER' },
@@ -324,50 +319,123 @@ const MEMBERS = [
   { username: 'tccsompara', name: 'TCC Sompara', location: 'Chatkhil', badge: 'PRO' },
 ];
 
-// 30 Citizen Services Catalogue (per Blueprint §3.1, §3.2)
-const SERVICE_CATEGORIES = [
-  { id: 'citizen', name: 'নাগরিক সেবা', icon: '🏛️', desc: 'নাগরিকত্ব, চারিত্রিক, ওয়ারিশ ও জন্ম নিবন্ধন গাইড' },
-  { id: 'nid', name: 'NID ও ভোটার সেবা', icon: '🪪', desc: 'NID সংশোধন গাইড, ভোটার স্লিপ ও রি-ইস্যু সহায়তা' },
-  { id: 'cert', name: 'সনদ আবেদন সহায়তা', icon: '📜', desc: 'পারিবারিক, অবিবাহিত ও প্রত্যয়নপত্র ড্রাফটিং' },
-  { id: 'govt', name: 'সরকারি আবেদন', icon: '📑', desc: 'পাসপোর্ট, পুলিশ ক্লিয়ারেন্স ও ড্রাইভিং লাইসেন্স' },
-  { id: 'edu', name: 'শিক্ষা সেবা', icon: '🎓', desc: 'অনলাইন ভর্তি, স্কলারশিপ ও পরীক্ষার ফর্ম পূরণ' },
+// 4 Official Packages Exactly Matching image-7.png from IT Lancer BD
+const PACKAGES = [
+  {
+    id: 'basic-1m',
+    badge: 'সেভিংস প্ল্যান',
+    name: 'প্রাথমিক',
+    duration: '১ মাস',
+    desc: 'নতুনদের ট্রায়াল ও জরুরি কাজের জন্য উপযোগী',
+    price: 99,
+    period: '/ ১ মাস',
+    monthlyRate: '৯৯ টাকা / মাস',
+    icon: '⚡',
+    features: [
+      '১ মাস সম্পূর্ণ মেয়াদ',
+      'বিজি রিমুভ (আনলিমিটেড)',
+      'ইনহ্যান্স (আনলিমিটেড)',
+      'আপস্কেল (আনলিমিটেড)',
+      'NID প্রিন্ট রেডি',
+      'A4 প্রিন্ট রেডি',
+      'জবস্ অটোফিল (আনলিমিটেড)',
+      'রেগুলার আপডেট লিংক',
+      'ফাইল ফরমেট ডাউনলোড (দিনে সর্বোচ্চ ৩টি/মাসে সর্বোচ্চ ২০টি)',
+      'সকল টুলস্ এর আনলিমিটেড এক্সেস (AI ছাড়া)',
+      'বেসিক সাপোর্ট',
+    ],
+  },
+  {
+    id: 'popular-3m',
+    badge: 'রিকমেন্ডেড চয়েস',
+    name: 'জনপ্রিয়',
+    duration: '৩ মাস',
+    desc: 'স্বল্পমেয়াদী নিয়মিত প্রজেক্টের জন্য সেরা পছন্দ',
+    price: 200,
+    period: '/ ৩ মাস',
+    monthlyRate: '≈ ৬৭ টাকা / মাস',
+    icon: '⚡',
+    features: [
+      '৩ মাস সম্পূর্ণ মেয়াদ',
+      'বিজি রিমুভ (আনলিমিটেড)',
+      'ইনহ্যান্স (আনলিমিটেড)',
+      'আপস্কেল (আনলিমিটেড)',
+      'NID প্রিন্ট রেডি',
+      'A4 প্রিন্ট রেডি',
+      'জবস্ অটোফিল (আনলিমিটেড)',
+      'রেগুলার আপডেট লিংক',
+      'ফাইল ফরমেট ডাউনলোড',
+      'সকল টুলস্ এর আনলিমিটেড এক্সেস (AI ছাড়া)',
+      'প্রায়োরিটি সাপোর্ট',
+    ],
+  },
+  {
+    id: 'prochesta-6m',
+    badge: 'সর্বাধিক সাশ্রয়ী',
+    name: 'প্রচেষ্টা',
+    duration: '৬ মাস',
+    desc: 'সর্বাধিক নির্বাচিত এবং সবচেয়ে ভারসাম্যপূর্ণ প্ল্যান',
+    price: 300,
+    period: '/ ৬ মাস',
+    monthlyRate: '≈ ৫০ টাকা / মাস',
+    icon: '💎',
+    featured: true,
+    features: [
+      '৬ মাস সম্পূর্ণ মেয়াদ',
+      'বিজি রিমুভ (আনলিমিটেড)',
+      'ইনহ্যান্স (আনলিমিটেড)',
+      'আপস্কেল (আনলিমিটেড)',
+      'NID প্রিন্ট রেডি',
+      'A4 প্রিন্ট রেডি',
+      'জবস্ অটোফিল (আনলিমিটেড)',
+      'রেগুলার আপডেট লিংক',
+      'ফাইল ফরমেট ডাউনলোড',
+      'সকল টুলস্ এর আনলিমিটেড এক্সেস (AI ছাড়া)',
+      'ডেডিকেটেড সাপোর্ট',
+    ],
+  },
+  {
+    id: 'uddam-12m',
+    badge: 'সর্বোচ্চ ৫৮% সাশ্রয়',
+    name: 'উদ্দাম',
+    duration: '১২ মাস',
+    desc: 'পেশাদার ব্যবসায়ী ও নিয়মিত কাজের জন্য সর্বোচ্চ সাশ্রয়ী প্ল্যান',
+    price: 500,
+    period: '/ ১২ মাস',
+    monthlyRate: '৪২ টাকা / মাস',
+    icon: '🛡️',
+    features: [
+      '১২ মাস (১ বছর) মেয়াদ',
+      'বিজি রিমুভ (আনলিমিটেড)',
+      'ইনহ্যান্স (আনলিমিটেড)',
+      'আপস্কেল (আনলিমিটেড)',
+      'NID প্রিন্ট রেডি',
+      'A4 প্রিন্ট রেডি',
+      'জবস্ অটোফিল (আনলিমিটেড)',
+      'রেগুলার আপডেট লিংক',
+      'ফাইল ফরমেট ডাউনলোড',
+      'সকল টুলস্ এর আনলিমিটেড এক্সেস (AI ছাড়া)',
+      'ডেডিকেটেড সাপোর্ট',
+    ],
+  },
 ];
 
-const SERVICES = [
-  { slug: 'citizenship-cert', cat: 'citizen', name: 'নাগরিকত্ব সনদ আবেদন সহায়তা', en: 'Citizenship Certificate Assistance', fee: 150, days: '৩-৫ দিন', icon: '📜', desc: 'ইউনিয়ন পরিষদ/পৌরসভা থেকে নাগরিকত্ব সনদ পাওয়ার সম্পূর্ণ আবেদন সহায়তা — ফর্ম পূরণ, কাগজপত্র যাচাই ও সরকারি পোর্টালে সাবমিশন গাইড।', docs: ['জাতীয় পরিচয়পত্র/জন্ম নিবন্ধনের কপি', 'ইউপি চেয়ারম্যান/কাউন্সিলর প্রত্যয়ন', 'পাসপোর্ট সাইজ ছবি'] },
-  { slug: 'character-cert', cat: 'citizen', name: 'চারিত্রিক সনদ আবেদন সহায়তা', en: 'Character Certificate Assistance', fee: 150, days: '৩-৫ দিন', icon: '✅', desc: 'পুলিশ/ইউপি থেকে চারিত্রিক সনদের আবেদন প্রক্রিয়ায় ধাপে ধাপে সহায়তা।', docs: ['ভোটার আইডি বা জন্ম সনদ', 'স্থানীয় ওয়ার্ড প্রতিনিধির সুপারিশ'] },
-  { slug: 'warish-cert', cat: 'citizen', name: 'ওয়ারিশ সনদ আবেদন সহায়তা', en: 'Succession Certificate Guide', fee: 200, days: '৫-৭ দিন', icon: '👨‍👩‍👧‍👦', desc: 'ওয়ারিশ সনদ আবেদনের জন্য প্রয়োজনীয় কাগজপত্র ও ফর্ম পূরণে সহায়তা।', docs: ['মৃত ব্যক্তির মৃত্যু সনদ', 'ওয়ারিশদের NID ও জন্ম সনদ', 'পারিবারিক প্রত্যয়ন'] },
-  { slug: 'family-cert', cat: 'cert', name: 'পারিবারিক সনদ', en: 'Family Certificate', fee: 150, days: '৩-৫ দিন', icon: '🏠', desc: 'পারিবারিক সনদ আবেদন ও প্রক্রিয়াকরণ সহায়তা।', docs: ['পরিবারের প্রধানের NID', 'সকল সদস্যের জন্ম সনদ/NID'] },
-  { slug: 'unmarried-cert', cat: 'cert', name: 'অবিবাহিত সনদ', en: 'Unmarried Certificate', fee: 150, days: '৩-৫ দিন', icon: '💍', desc: 'অবিবাহিত সনদ প্রাপ্তির আবেদন ফরম ও প্রয়োজনীয় ড্রাফটিং।', docs: ['বয়স প্রমাণের জন্য জন্ম সনদ বা SSC সনদ', 'NID কার্ড'] },
-  { slug: 'death-cert', cat: 'citizen', name: 'মৃত্যু সনদ আবেদন সহায়তা', en: 'Death Certificate Guide', fee: 150, days: '৩-৫ দিন', icon: '🕊️', desc: 'মৃত্যু সনদ আবেদন ও অনলাইন রেজিস্ট্রেশন গাইডলাইন।', docs: ['হাসপাতালের ডেথ সার্টিফিকেট', 'কবরস্থান/শ্মশান রসিদ', 'আবেদনকারীর NID'] },
-  { slug: 'birth-reg-guide', cat: 'citizen', name: 'জন্ম নিবন্ধন আবেদন নির্দেশনা', en: 'Birth Registration Guide', fee: 100, days: '১-৩ দিন', icon: '👶', desc: 'নতুন জন্ম নিবন্ধনের অনলাইন আবেদন ফরম পূরণ ও যাচাইকরণ গাইড।', docs: ['ইপিআই টিকা কার্ড', 'পিতা-মাতার অনলাইন জন্ম সনদ', 'হোল্ডিং ট্যাক্স রসিদ'] },
-  { slug: 'birth-corr-guide', cat: 'citizen', name: 'জন্ম নিবন্ধন সংশোধন গাইড', en: 'Birth Certificate Correction Guide', fee: 150, days: '৩-৫ দিন', icon: '✏️', desc: 'জন্ম সনদে নাম, জন্ম তারিখ ও পিতামাতার নাম সংশোধনের গাইড।', docs: ['বিদ্যমান জন্ম সনদ', 'প্রমাণক কাগজপত্র (NID, শিক্ষাগত সনদ)'] },
-  { slug: 'trade-license', cat: 'govt', name: 'ট্রেড লাইসেন্স নতুন ও নবায়ন সহায়তা', en: 'Trade License Assistance', fee: 350, days: '৩-৭ দিন', icon: '💼', desc: 'ব্যবসায়িক ট্রেড লাইসেন্স নতুন আবেদন এবং বাৎসরিক নবায়ন সহায়তা।', docs: ['ব্যবসা প্রতিষ্ঠানের ভাড়ার চুক্তিপত্র', 'মালিকের NID ও ছবি', 'ট্যাক্স রসিদ'] },
-  { slug: 'holding-tax', cat: 'govt', name: 'হোল্ডিং ট্যাক্স গাইড', en: 'Holding Tax Assessment Guide', fee: 100, days: '১-২ দিন', icon: '🏢', desc: 'পৌরসভা ও সিটি কর্পোরেশনের হোল্ডিং ট্যাক্স নির্ধারণ ও পরিশোধ গাইড।', docs: ['বাড়ির দলিল বা খতিয়ান', 'পূর্ববর্তী বছরের ট্যাক্স রসিদ'] },
-  { slug: 'land-tax', cat: 'govt', name: 'ভূমি উন্নয়ন কর গাইড (খাজনা)', en: 'Land Development Tax Guide', fee: 100, days: '১-২ দিন', icon: '🌾', desc: 'অনলাইনে জমির খাজনা দাখিলা ও উন্নয়ন কর পরিশোধ গাইডলাইন।', docs: ['খতিয়ান নম্বর', 'সর্বশেষ দাখিলা রসিদ', 'মালিকের NID'] },
-  { slug: 'namjari-guide', cat: 'govt', name: 'খতিয়ান ও নামজারি আবেদন গাইড', en: 'Mutation & Khatian Guide', fee: 250, days: '৭-১৫ দিন', icon: '🗺️', desc: 'অনলাইনে ই-নামজারি ও রেকর্ড সংশোধনের সম্পূর্ণ দিকনির্দেশনা।', docs: ['মূল দলিল', 'ওয়ারিশান সনদ (প্রযোজ্য ক্ষেত্রে)', 'খতিয়ানের সার্টিফাইড কপি'] },
-  { slug: 'govt-form', cat: 'govt', name: 'সরকারি আবেদন ফর্ম ড্রাফটিং', en: 'Govt Application Form Drafting', fee: 80, days: '১ দিন', icon: '📝', desc: 'বিভিন্ন মন্ত্রণালয় ও সরকারি দপ্তরের ফরম সঠিক ফরমেটে ড্রাফট করা।', docs: ['আবেদনের বিষয় ও বিবরণ'] },
-  { slug: 'govt-job', cat: 'govt', name: 'সরকারি চাকরির আবেদন সহায়তা', en: 'Govt Job Application Help', fee: 120, days: '১ দিন', icon: '📋', desc: 'টেলিটক ও বিভিন্ন সরকারি চাকরির অনলাইন আবেদন নির্ভুলভাবে সম্পন্ন করা।', docs: ['ছবি ও স্বাক্ষর (সঠিক সাইজ)', 'শিক্ষাগত যোগ্যতার সনদ', 'কোটাসূচক তথ্য'] },
-  { slug: 'passport-guide', cat: 'govt', name: 'পাসপোর্ট আবেদন সহায়তা', en: 'e-Passport Application Guide', fee: 200, days: '২-৩ দিন', icon: '🛂', desc: 'ই-পাসপোর্ট ফরম পূরণ, ফি প্রদান ও অ্যাপয়েন্টমেন্ট শিডিউল গাইড।', docs: ['NID বা জন্ম সনদ', 'পূর্ববর্তী পাসপোর্ট (যদি থাকে)'] },
-  { slug: 'police-clearance', cat: 'govt', name: 'পুলিশ ক্লিয়ারেন্স গাইড', en: 'Police Clearance Guide', fee: 150, days: '৫-১০ দিন', icon: '👮', desc: 'অনলাইনে পুলিশ ক্লিয়ারেন্স সার্টিফিকেট আবেদনের পূর্ণাঙ্গ সহায়তা।', docs: ['পাসপোর্টের কপি', 'অনলাইন চালানের কপি'] },
-  { slug: 'driving-license', cat: 'govt', name: 'ড্রাইভিং লাইসেন্স আবেদন গাইড', en: 'Driving License Guide (BRTA)', fee: 200, days: '২-৩ দিন', icon: '🚗', desc: 'বিআরটিএ লার্নার ও স্মার্ট ড্রাইভিং লাইসেন্স আবেদনের নিয়মাবলি।', docs: ['মেডিকেল সার্টিফিকেট', 'NID কার্ড', 'ইউটিলিটি বিল'] },
-  { slug: 'govt-allowance', cat: 'citizen', name: 'বিভিন্ন সরকারি ভাতা আবেদন গাইড', en: 'Social Safety Allowance Guide', fee: 100, days: '৩-৫ দিন', icon: '🤝', desc: 'বয়স্ক ভাতা, বিধবা ভাতা ও প্রতিবন্ধী ভাতা আবেদনের দিকনির্দেশনা।', docs: ['NID কার্ড', 'সমাজসেবা প্রত্যয়ন'] },
-  { slug: 'school-admission', cat: 'edu', name: 'শিক্ষাপ্রতিষ্ঠানের অনলাইন আবেদন', en: 'School/College Online Admission', fee: 100, days: '১ দিন', icon: '🎒', desc: 'স্কুল, কলেজ ও মাদ্রাসা ভর্তির অনলাইন ফরম ও কলেজ চয়েস তালিকা পূরণ।', docs: ['রোল ও রেজিস্ট্রেশন নম্বর', 'পাসপোর্ট সাইজ ছবি'] },
-  { slug: 'nid-server-copy', cat: 'nid', name: 'NID সার্ভার কপি সহায়তা', en: 'NID Server Copy Assistance', fee: 100, days: 'তাৎক্ষণিক', icon: '🪪', desc: 'ভোটার তথ্য ও সার্ভার কপি যাচাই সহায়তা।', docs: ['NID নম্বর বা ভোটার স্লিপ', 'জন্ম তারিখ'] },
-  { slug: 'nid-correction', cat: 'nid', name: 'NID সংশোধন গাইড', en: 'NID Correction Guide', fee: 150, days: '৩-৭ দিন', icon: '🔧', desc: 'জাতীয় পরিচয়পত্রে নিজের নাম, পিতা-মাতার নাম ও জন্মতারিখ সংশোধন।', docs: ['এসএসসি সনদ/জন্ম সনদ', 'পিতা-মাতার NID'] },
-  { slug: 'nid-reissue', cat: 'nid', name: 'NID রি-ইস্যু গাইড (হারানো কার্ড)', en: 'NID Reissue Guide', fee: 120, days: '২-৩ দিন', icon: '🔄', desc: 'NID কার্ড হারিয়ে গেলে বা নষ্ট হলে থানায় জিডি ও পুনঃইস্যু আবেদন গাইড।', docs: ['থানার জিডি কপি', 'ট্রেজারি চালান'] },
-  { slug: 'voter-reg-guide', cat: 'nid', name: 'নতুন ভোটার নিবন্ধন গাইড', en: 'New Voter Registration Guide', fee: 100, days: '১-২ দিন', icon: '🗳️', desc: 'অনলাইনে ফরম-২ পূরণ ও নতুন ভোটার হওয়ার প্রয়োজনীয় তথ্যাবলি।', docs: ['অনলাইন জন্ম সনদ', 'পিতা-মাতার NID', 'নাগরিকত্ব সনদ'] },
-  { slug: 'voter-slip-gen', cat: 'nid', name: 'ভোটার স্লিপ জেনারেটর', en: 'Voter Slip Generator Tool', fee: 50, days: 'তাৎক্ষণিক', icon: '🎫', desc: 'ভোটার নম্বর ও কেন্দ্রের তথ্য দিয়ে প্রিন্টযোগ্য ভোটার স্লিপ প্রস্তুত।', docs: ['ভোটার সিরিয়াল ও নাম'] },
-  { slug: 'polling-center', cat: 'nid', name: 'ভোটকেন্দ্র ও ভোটার তথ্য অনুসন্ধান', en: 'Polling Center Information Guide', fee: 50, days: 'তাৎক্ষণিক', icon: '🏫', desc: 'নির্বাচন কমিশনের তথ্য অনুযায়ী নির্ধারিত ভোটকেন্দ্রের অবস্থান জানা।', docs: ['NID নম্বর'] },
-  { slug: 'afis-help', cat: 'nid', name: 'AFIS আবেদন সহায়তা', en: 'AFIS Application Guide', fee: 150, days: '৩-৫ দিন', icon: '🖐️', desc: 'আঙুলের ছাপ ও ফিঙ্গারপ্রিন্ট মিসম্যাচ সমাধানের আনুষ্ঠানিক আবেদন গাইড।', docs: ['নির্বাচন অফিস রসিদ'] },
-  { slug: 'voter-checklist', cat: 'nid', name: 'NID ডকুমেন্ট চেকলিস্ট', en: 'NID Document Checklist', fee: 50, days: 'তাৎক্ষণিক', icon: '📋', desc: 'সংশোধন ও নতুন ভোটার হতে প্রয়োজনীয় কাগজপত্রের আনুষ্ঠানিক তালিকা।', docs: ['চেকলিস্ট গাইড'] },
-];
-
-// Subscription Plans
-const PLANS = [
-  { id: 'free', name: 'Free', price: 0, period: 'আজীবন', desc: 'নতুন ও সাধারণ ব্যবহারকারীদের জন্য', features: ['সীমিত ফ্রি টুলস', 'সাধারণ ড্যাশবোর্ড', 'অর্ডার ট্র্যাকিং', 'গুরুত্বপূর্ণ লিংকসমূহ'] },
-  { id: 'basic', name: 'Basic', price: 299, period: '/ মাস', desc: 'নিয়মিত ডকুমেন্ট প্রসেসিং এর জন্য', features: ['ফটো স্টুডিও আনলিমিটেড', 'NID ও A4 প্রিন্ট রেডি', 'ডকুমেন্ট টেমপ্লেট', 'WhatsApp সাপোর্ট'] },
-  { id: 'pro', name: 'Professional', price: 599, period: '/ মাস', featured: true, desc: 'পেশাজীবী ও সেবা প্রদানকারীদের জন্য', features: ['১০০০ AI ক্রেডিট অন্তর্ভুক্ত', 'সব প্রিমিয়াম টুলস ও ক্রপার', 'ভোট স্লিপ জেনারেটর', 'প্রাইওরিটি কাস্টমার কেয়ার'] },
-  { id: 'business', name: 'Business', price: 1499, period: '/ মাস', desc: 'দোকান, চেম্বার ও এজেন্সির জন্য', features: ['ক্লাউড POS ও ইনভয়েস', 'মাল্টিপল স্টাফ অ্যাকাউন্ট', 'বিক্রয় ও সেলস এনালিটিক্স', 'API এক্সেস সুবিধা'] },
-  { id: 'partner', name: 'Center Partner', price: 999, period: '/ মাস', desc: 'সেবাকেন্দ্র অনুমোদিত উদ্যোক্তাদের জন্য', features: ['উদ্যোক্তা ড্যাশবোর্ড ও Center ID', 'কমিশন ট্র্যাকিং ও উইথড্রয়াল', 'QR কার্ড ও ব্র্যান্ডিং কিট', 'সারাদেশের সেন্টারে লিস্টিং'] },
+// FAQs Matching image-7.png
+const PACKAGE_FAQS = [
+  {
+    q: 'আমি কি বিনামূল্যে সেবাকেন্দ্র এর মেম্বার হতে পারব?',
+    a: 'হ্যাঁ, আপনি বিনামূল্যে সাধারণ মেম্বার হিসেবে অ্যাকাউন্ট খুলতে পারবেন এবং সীমিত কিছু ফ্রি টুলস ব্যবহার করতে পারবেন। তবে ফটো স্টুডিও, NID প্রিন্ট রেডি, ও আনলিমিটেড সুবিধার জন্য প্রিমিয়াম প্যাকেজ প্রয়োজন।',
+  },
+  {
+    q: 'পেমেন্ট করার পর প্যাকেজ কতক্ষণে অ্যাক্টিভ হবে?',
+    a: 'bKash দিয়ে পেমেন্ট করার সাথে সাথেই স্বয়ংক্রিয়ভাবে সার্ভার-সাইড ভেরিফিকেশনের মাধ্যমে আপনার অ্যাকাউন্টে প্যাকেজ চালু হয়ে যাবে। কোনো অপেক্ষা করার প্রয়োজন নেই।',
+  },
+  {
+    q: 'NID প্রিন্ট রেডি টুলস দিয়ে কি যেকোনো মোবাইলে তোলা ছবি সাইজ করা যাবে?',
+    a: 'হ্যাঁ, মোবাইলে তোলা সামনের ও পেছনের অংশের ছবি আপলোড করলে সিস্টেম স্বয়ংক্রিয়ভাবে আন্তর্জাতিক স্ট্যান্ডার্ড স্মার্ট কার্ড সাইজে (৮৫.৬ x ৫৪ মিমি) এলাইন করে এবং কাটিং গাইড সহ A4 পেপারে প্রিন্ট রেডি করে দেয়।',
+  },
+  {
+    q: 'আমার যদি কোনো সমস্যা হয় তবে সাপোর্ট কিভাবে পাব?',
+    a: 'আমাদের রয়েছে ডেডিকেটেড সাপোর্ট টিম। আপনি আমাদের হটলাইন 01755-683948 এ সকাল ৮টা থেকে রাত ১১টা পর্যন্ত কল করতে পারেন অথবা সরাসরি WhatsApp-এ মেসেজ দিয়ে তাৎক্ষণিক সমাধান পেতে পারেন।',
+  },
 ];

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SebaKendra — দেশের সেরা প্ল্যাটফর্ম নাগরিক সেবা ও আইটি ইনফরমেশন এর জন্য</title>
-  <meta name="description" content="SebaKendra — চাকরি, ভর্তি, NID প্রিন্ট রেডি, যৌথ ছবি, ফটো স্টুডিও, সি ভি অটো ফিল, অনলাইন টুলস এবং দৈনন্দিন কাজের সকল গুরুত্বপূর্ণ লিংকের বিশ্বস্ত সমাধান।">
+  <title>SebaKendra — দেশের সেরা প্ল্যাটফর্ম আইটি ইনফরমেশন ও নাগরিক সেবার জন্য</title>
+  <meta name="description" content="SebaKendra — চাকরি, ভর্তি, NID প্রিন্ট রেডি, সি ভি অটো ফিল, অনলাইন টুলস, PSD/Word ফাইল ডাউনলোড এবং দৈনন্দিন কাজের সকল গুরুত্বপূর্ণ লিংকের বিশ্বস্ত সমাধান।">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,12 +13,12 @@
 </head>
 <body>
 
-  <!-- Top Announcement Bar (IT Lancer style) -->
+  <!-- Top Announcement Bar -->
   <div class="top-bar">
     <div class="container flex justify-between items-center w-full">
       <div class="top-bar-notice">
         <span class="top-bar-pill">📢 আপডেট</span>
-        <span>নতুন আপডেট: NID Print Ready টুলসে এখন যুক্ত হলো "ম্যানুয়াল ক্রপ" সুবিধা! ফ্রন্ট ও ব্যাক সাইড নিজের মতো নিখুঁতভাবে ক্রপ করে মাত্র ১০ সেকেন্ডে NID প্রিন্ট রেডি করুন।</span>
+        <span>নতুন আপডেট: NID Print Ready টুলসে এখন যুক্ত হলো "ম্যানুয়াল ক্রপ" সুবিধা! ফ্রন্ট ও ব্যাক সাইড মাত্র ১০ সেকেন্ডে NID প্রিন্ট রেডি করুন!</span>
       </div>
       <div class="flex items-center gap-2">
         <a href="/packages" class="text-xs text-white" style="text-decoration:underline;">প্যাকেজ অফার</a>
@@ -40,77 +40,190 @@
       <ul class="nav-links">
         <li><a href="/" class="nav-link active">হোম</a></li>
 
-        <!-- Mega Dropdown for Tools (IT Lancer style) -->
+        <!-- Mega Dropdown (Exact 5-Columns from IT Lancer BD image-6.png) -->
         <li class="nav-dropdown">
           <a href="/tools" class="nav-link">
             <span>টুলস</span>
             <span style="font-size:0.7rem">▾</span>
           </a>
           <div class="nav-dropdown-menu">
-            <div>
-              <div class="mega-col-head">📸 ছবি ও প্রিন্টিং</div>
-              <a href="/tools/photo-studio" class="mega-item">
-                <span class="mega-item-title">Photo Studio AI</span>
-                <span class="mega-item-desc">স্মার্ট ফটো ক্রপ ও পাসপোর্ট সাইজ</span>
+            <!-- Col 1: Photo & Print (6) -->
+            <div class="mega-col">
+              <div class="mega-col-pill">
+                <div class="mega-col-pill-left">
+                  <span class="mega-col-dot"></span>
+                  <div>
+                    <div class="mega-col-title">ছবি ও প্রিন্টিং</div>
+                    <div class="mega-col-sub">Photo & Print</div>
+                  </div>
+                </div>
+                <span class="mega-col-badge">6</span>
+              </div>
+              <a href="/tools/ai-photo-studio" class="mega-link-item">
+                <div class="mega-icon-box">🤖</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">Photo Studio AI</span><span class="mega-item-en">AI Photo Studio</span></div>
               </a>
-              <a href="/tools/joint-photo" class="mega-item">
-                <span class="mega-item-title">যৌথ ছবি (Joint Photo)</span>
-                <span class="mega-item-desc">পাশাপাশি দুই ব্যক্তির যৌথ ছবি</span>
+              <a href="/tools/photo-studio" class="mega-link-item">
+                <div class="mega-icon-box">📷</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">ফটো স্টুডিও</span><span class="mega-item-en">Photo Studio</span></div>
               </a>
-              <a href="/tools/nid-print-ready" class="mega-item">
-                <span class="mega-item-title">NID প্রিন্ট রেডি</span>
-                <span class="mega-item-desc">মোবাইলে তোলা NID কার্ড প্রিন্ট রেডি</span>
+              <a href="/tools/joint-photo" class="mega-link-item">
+                <div class="mega-icon-box">👥</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">যৌথ ছবি</span><span class="mega-item-en">Joint Photo</span></div>
               </a>
-              <a href="/tools/a4-print-ready" class="mega-item">
-                <span class="mega-item-title">A4 প্রিন্ট রেডি</span>
-                <span class="mega-item-desc">এক ক্লিকে ৪, ৮, ১২, ২৪ কপি শিট</span>
+              <a href="/tools/nid-print-ready" class="mega-link-item">
+                <div class="mega-icon-box">🪪</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">NID প্রিন্ট রেডি</span><span class="mega-item-en">NID Print Ready</span></div>
+              </a>
+              <a href="/tools/a4-print-ready" class="mega-link-item">
+                <div class="mega-icon-box">🖨️</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">A4 প্রিন্ট রেডি</span><span class="mega-item-en">A4 Print Ready</span></div>
+              </a>
+              <a href="/tools/photo-card" class="mega-link-item">
+                <div class="mega-icon-box">💳</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">ফটো কার্ড</span><span class="mega-item-en">Photo Card</span></div>
               </a>
             </div>
 
-            <div>
-              <div class="mega-col-head">💼 চাকরি, CV ও ভর্তি</div>
-              <a href="/jobs" class="mega-item">
-                <span class="mega-item-title">চলমান চাকরি (Jobs)</span>
-                <span class="mega-item-desc">সকল সরকারি ও ব্যাংক চাকরির সার্কুলার</span>
+            <!-- Col 2: Career & Education (5) -->
+            <div class="mega-col">
+              <div class="mega-col-pill">
+                <div class="mega-col-pill-left">
+                  <span class="mega-col-dot"></span>
+                  <div>
+                    <div class="mega-col-title">চাকরি, CV ও ভর্তি</div>
+                    <div class="mega-col-sub">Career & Education</div>
+                  </div>
+                </div>
+                <span class="mega-col-badge">5</span>
+              </div>
+              <a href="/jobs" class="mega-link-item">
+                <div class="mega-icon-box">💼</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">চাকরি</span><span class="mega-item-en">Jobs</span></div>
               </a>
-              <a href="/tools/cv-auto-fill" class="mega-item">
-                <span class="mega-item-title">সিভি অটোফিল</span>
-                <span class="mega-item-desc">ক্লিক করলেই প্রফেশনাল জীবনবৃত্তান্ত</span>
+              <a href="/tools/job-autofill" class="mega-link-item">
+                <div class="mega-icon-box">✍️</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">জবস্ অটো ফিল</span><span class="mega-item-en">Job Autofill</span></div>
               </a>
-              <a href="/services" class="mega-item">
-                <span class="mega-item-title">নাগরিক সেবা ক্যাটালগ</span>
-                <span class="mega-item-desc">৩০টি নাগরিক ও সনদ আবেদন সহায়তা</span>
+              <a href="/tools/my-job-ads" class="mega-link-item">
+                <div class="mega-icon-box">📢</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">আমার বিজ্ঞাপন</span><span class="mega-item-en">My Job Ads</span></div>
+              </a>
+              <a href="/tools/cv-auto-fill" class="mega-link-item">
+                <div class="mega-icon-box">📄</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">সিভি অটোফিল</span><span class="mega-item-en">CV Autofill</span></div>
+              </a>
+              <a href="/tools/admission" class="mega-link-item">
+                <div class="mega-icon-box">🎓</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">ভর্তি</span><span class="mega-item-en">Admission</span></div>
               </a>
             </div>
 
-            <div>
-              <div class="mega-col-head">⚡ দ্রুত প্রয়োজনীয় লিংক ও ব্যবসা</div>
-              <a href="/links" class="mega-item">
-                <span class="mega-item-title">গুরুত্বপূর্ণ লিংকসমূহ (১১৪+)</span>
-                <span class="mega-item-desc">সরকারি সকল অফিশিয়াল পোর্টাল</span>
+            <!-- Col 3: Design & Documents (5) -->
+            <div class="mega-col">
+              <div class="mega-col-pill">
+                <div class="mega-col-pill-left">
+                  <span class="mega-col-dot"></span>
+                  <div>
+                    <div class="mega-col-title">ডিজাইন ও ডকুমেন্ট</div>
+                    <div class="mega-col-sub">Design & Documents</div>
+                  </div>
+                </div>
+                <span class="mega-col-badge">5</span>
+              </div>
+              <a href="/tools/cv-format" class="mega-link-item">
+                <div class="mega-icon-box">📑</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">সিভি ফরম্যাট</span><span class="mega-item-en">CV Format</span></div>
               </a>
-              <a href="/tools/make-voter-slip" class="mega-item">
-                <span class="mega-item-title">ভোটার স্লিপ তৈরি</span>
-                <span class="mega-item-desc">QR কোড সহ ভোটার স্লিপ প্রিন্ট</span>
+              <a href="/tools/graphics-format" class="mega-link-item">
+                <div class="mega-icon-box">🎨</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">গ্রাফিক্স ফরমেট</span><span class="mega-item-en">Graphics Format</span></div>
               </a>
-              <a href="/business" class="mega-item">
-                <span class="mega-item-title">অটো ইনভয়েস ও POS</span>
-                <span class="mega-item-desc">ক্যাশ মেমো ও দোকানের দৈনিক হিসাব</span>
+              <a href="/tools/certificate-format" class="mega-link-item">
+                <div class="mega-icon-box">📜</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">সনদ ফরমেট</span><span class="mega-item-en">Certificate Format</span></div>
+              </a>
+              <a href="/tools/pdf-studio" class="mega-link-item">
+                <div class="mega-icon-box">📕</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">পিডিএফ স্টুডিও</span><span class="mega-item-en">PDF Studio</span></div>
+              </a>
+              <a href="/tools/any-to-word" class="mega-link-item">
+                <div class="mega-icon-box">📝</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">এনি টু ওয়ার্ড</span><span class="mega-item-en">Any to Word</span></div>
+              </a>
+            </div>
+
+            <!-- Col 4: Business & Daily (4) -->
+            <div class="mega-col">
+              <div class="mega-col-pill">
+                <div class="mega-col-pill-left">
+                  <span class="mega-col-dot"></span>
+                  <div>
+                    <div class="mega-col-title">দৈনন্দিন ও ব্যবসায়িক</div>
+                    <div class="mega-col-sub">Business & Daily</div>
+                  </div>
+                </div>
+                <span class="mega-col-badge">4</span>
+              </div>
+              <a href="/tools/auto-invoice" class="mega-link-item">
+                <div class="mega-icon-box">🧾</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">অটো ইনভয়েস</span><span class="mega-item-en">Auto Invoice</span></div>
+              </a>
+              <a href="/tools/it-hisab" class="mega-link-item">
+                <div class="mega-icon-box">🧮</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">আইটি হিসাব</span><span class="mega-item-en">IT Hisab</span></div>
+              </a>
+              <a href="/tools/todo" class="mega-link-item">
+                <div class="mega-icon-box">✅</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">মনে রাখুন</span><span class="mega-item-en">Todo List</span></div>
+              </a>
+              <a href="/tools/software" class="mega-link-item">
+                <div class="mega-icon-box">💾</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">সফটওয়্যার</span><span class="mega-item-en">Software</span></div>
+              </a>
+            </div>
+
+            <!-- Col 5: Quick Access (4) -->
+            <div class="mega-col">
+              <div class="mega-col-pill">
+                <div class="mega-col-pill-left">
+                  <span class="mega-col-dot"></span>
+                  <div>
+                    <div class="mega-col-title">দ্রুত প্রয়োজনীয় লিংক</div>
+                    <div class="mega-col-sub">Quick Access</div>
+                  </div>
+                </div>
+                <span class="mega-col-badge">4</span>
+              </div>
+              <a href="/tools/image-resizer" class="mega-link-item">
+                <div class="mega-icon-box">📐</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">ইমেজ রিসাইজার</span><span class="mega-item-en">Image Resizer & Crop</span></div>
+              </a>
+              <a href="/tools/make-voter-slip" class="mega-link-item">
+                <div class="mega-icon-box">🗳️</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">ভোটার স্লিপ তৈরি</span><span class="mega-item-en">Voter Slip</span></div>
+              </a>
+              <a href="/tools/ai-prompt" class="mega-link-item">
+                <div class="mega-icon-box">✨</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">এআই প্রম্পট</span><span class="mega-item-en">AI Prompt</span></div>
+              </a>
+              <a href="/links" class="mega-link-item">
+                <div class="mega-icon-box">🔗</div>
+                <div class="mega-item-texts"><span class="mega-item-bn">গুরুত্বপূর্ণ লিংক</span><span class="mega-item-en">Important Links</span></div>
               </a>
             </div>
           </div>
         </li>
 
-        <li><a href="/services" class="nav-link">নাগরিক সেবা</a></li>
         <li><a href="/packages" class="nav-link">প্যাকেজ কিনুন</a></li>
         <li><a href="/ai-coins" class="nav-link">AI কয়েন কিনুন</a></li>
-        <li><a href="/premium" class="nav-link" style="color:var(--amber);font-weight:700">প্রিমিয়াম 👑</a></li>
+        <li><a href="/packages" class="nav-link" style="color:var(--amber);font-weight:700">প্রিমিয়াম 👑</a></li>
       </ul>
 
       <div class="flex items-center gap-3">
-        <button id="themeToggle" class="btn btn-ghost btn-sm" title="থিম পরিবর্তন" aria-label="Toggle theme">🌙</button>
+        <button id="themeToggle" class="btn btn-ghost btn-sm" title="থিম পরিবর্তন">🌙</button>
         <div id="userNavArea" class="flex items-center gap-2">
-          <!-- Auth buttons dynamically rendered -->
+          <!-- Auth buttons -->
         </div>
       </div>
     </div>
